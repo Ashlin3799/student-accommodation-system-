@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Dashboard</title>
+</head>
+<body>
+
+    <h1>Student Dashboard</h1>
+
+    <p>Welcome to the Student Accommodation Management System.</p>
+
+    <button onclick="logout()">Logout</button>
+
+    <script>
+        function logout() {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "/login.html";
+        }
+    </script>
+
+</body>
+</html>

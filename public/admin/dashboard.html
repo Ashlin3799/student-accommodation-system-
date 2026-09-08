@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+
+    <h1>Admin Dashboard</h1>
+
+    <p>Welcome to the Administrator Dashboard.</p>
+
+    <button onclick="logout()">Logout</button>
+
+    <script>
+        function logout() {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "/login.html";
+        }
+    </script>
+
+</body>
+</html>
