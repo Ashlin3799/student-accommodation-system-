@@ -1,0 +1,14 @@
+{
+  "name": "student-accommodation-system",
+  "version": "1.0.0",
+  "description": "SIT725 group assignment - Application Module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.5.0",
+    "dotenv": "^16.4.5"
+  }
+}
