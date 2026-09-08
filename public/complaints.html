@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Student Complaints</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+</head>
+
+
+<body>
+
+<header>
+
+    <div class="container">
+
+        <h1>Student Accommodation Management System</h1>
+
+        <nav>
+
+            <a href="/">Home</a>
+
+            <a href="/complaints.html">
+                Complaints
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+
+<section class="card">
+
+    <h2>Report an Accommodation Complaint</h2>
+
+    <p>
+        Use this form to report a room or accommodation issue.
+    </p>
+
+
+    <div
+        id="message"
+        class="message">
+    </div>
+
+
+    <form id="complaintForm">
+
+
+        <div class="form-group">
+
+            <label for="studentId">
+                Student ID
+            </label>
+
+            <input
+                type="text"
+                id="studentId"
+                name="studentId"
+                placeholder="Example: S225562551"
+                required>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="studentName">
+                Student Name
+            </label>
+
+            <input
+                type="text"
+                id="studentName"
+                name="studentName"
+                placeholder="Enter your name"
+                required>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="description">
+                Describe your accommodation issue
+            </label>
+
+            <textarea
+                id="description"
+                name="description"
+                rows="6"
+                maxlength="500"
+                placeholder="Describe the problem..."
+                required>
+            </textarea>
+
+            <small>
+                Maximum 500 characters
+            </small>
+
+        </div>
+
+
+        <button
+            type="submit"
+            class="button">
+
+            Submit Complaint
+
+        </button>
+
+
+    </form>
+
+</section>
+
+
+
+<section class="card">
+
+    <div class="section-heading">
+
+        <h2>My Complaints</h2>
+
+        <button
+            id="loadComplaints"
+            class="button secondary">
+
+            Load Complaints
+
+        </button>
+
+    </div>
+
+
+    <div id="complaintsContainer">
+
+        <p>
+            Enter your Student ID above and click
+            <strong>Load Complaints</strong>.
+        </p>
+
+    </div>
+
+</section>
+
+
+</main>
+
+
+<footer>
+
+    SIT725 - Applied Software Engineering
+
+</footer>
+
+
+<script src="js/complaints.js"></script>
+
+</body>
+
+</html>
