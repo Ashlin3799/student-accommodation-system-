@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Room Directory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <h1 class="wordmark">Room&nbsp;Directory</h1>
+      <p class="tagline">Find where you'll live next term.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="board" aria-label="Filters">
+      <div class="board-row">
+        <input id="search" type="text" placeholder="Search room, building, amenity…" autocomplete="off" />
+
+        <select id="type">
+          <option value="">Any type</option>
+          <option value="single">Single</option>
+          <option value="double">Double</option>
+          <option value="triple">Triple</option>
+          <option value="dorm">Dorm</option>
+          <option value="suite">Suite</option>
+        </select>
+
+        <select id="status">
+          <option value="">Any status</option>
+          <option value="available">Available</option>
+          <option value="reserved">Reserved</option>
+          <option value="occupied">Occupied</option>
+        </select>
+
+        <select id="sort">
+          <option value="">Newest first</option>
+          <option value="priceAsc">Price: low to high</option>
+          <option value="priceDesc">Price: high to low</option>
+        </select>
+      </div>
+
+      <div class="board-row">
+        <label class="price-label" for="minPrice">Min $</label>
+        <input id="minPrice" type="number" min="0" placeholder="0" />
+        <label class="price-label" for="maxPrice">Max $</label>
+        <input id="maxPrice" type="number" min="0" placeholder="1000" />
+        <button id="clearFilters" type="button">Clear filters</button>
+      </div>
+    </section>
+
+    <section class="results">
+      <p id="resultCount" class="result-count"></p>
+      <div id="grid" class="grid"></div>
+      <p id="emptyState" class="empty-state" hidden>No rooms match those filters. Try widening your search.</p>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
