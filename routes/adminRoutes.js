@@ -12,4 +12,17 @@ router.get('/applications', (req, res) => {
   res.json({ success: true, data: mockApplications });
 });
 
+// PATCH endpoint to approve or reject an application
+router.patch('/applications/:id/status', (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const app = mockApplications.find(item => item.id === id);
+  if (app) {
+    app.status = status;
+    return res.json({ success: true, message: `Application ${status}`, data: app });
+  }
+
+ res.status()(404).json({ success: false, message: 'Application not found' });
+});
 module.exports = router;
