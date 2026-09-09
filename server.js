@@ -16,11 +16,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/api/auth", authRoutes);
-app.use("/api/admin", adminRoutes);
 
 // Serve frontend files
 app.use(express.static(path.join(__dirname, "public")));
+
+// Route for Admin Dashboard Page
+app.get("/admin/dashboard.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "admin", "dashboard.html"));
+});
+
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 
 // MongoDB connection
 mongoose
@@ -31,6 +37,8 @@ mongoose
     .catch((error) => {
         console.error("MongoDB connection error:", error);
     });
+
+
 
 // Test route
 app.get("/", (req, res) => {
