@@ -1,4 +1,4 @@
-const Room = require('../models/Room');
+const Room = require('../src/models/Room');
 const Application = require('../models/Application');
 const Complaint = require('../models/Complaint');
 

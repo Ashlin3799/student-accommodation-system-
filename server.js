@@ -11,6 +11,7 @@ const roomRoutes = require("./src/routes/rooms");
 const applicationRoutes = require("./routes/applications");
 const adminRoutes = require("./routes/adminRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
+const dashboardRoutes = require("./routes/dashboardroutes");
 
 dotenv.config();
 
@@ -39,6 +40,16 @@ app.use("/api/admin", adminRoutes);
 // Complaint routes
 app.use("/api/complaints", complaintRoutes);
 
+// Dashboard routes
+app.use("/api/dashboard", dashboardRoutes);
+
+// Home route - Login page
+app.get("/", (req, res) => {
+    res.sendFile(
+        path.join(__dirname, "public", "login.html")
+    );
+});
+
 // Serve frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -62,8 +73,3 @@ mongoose
     .catch((error) => {
         console.error("MongoDB connection error:", error);
     });
-
-// Home route
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
-});

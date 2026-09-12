@@ -6,7 +6,7 @@ async function loadDashboard() {
   }
 
   try {
-    const token = localStorage.getItem('kh_token');
+    const token = localStorage.getItem('token');
 
     const response = await fetch('/api/dashboard/stats', {
       method: 'GET',

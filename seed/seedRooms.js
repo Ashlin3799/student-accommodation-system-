@@ -1,4 +1,6 @@
 // Run with: node seed/seedRooms.js
+global.crypto = require("crypto").webcrypto;
+
 require('dotenv').config();
 const mongoose = require('mongoose');
 const Room = require('../src/models/Room');

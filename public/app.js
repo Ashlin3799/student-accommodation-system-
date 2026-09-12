@@ -65,7 +65,7 @@ async function loadRooms() {
     const query = buildQuery();
     const res = await fetch(`/api/rooms${query ? '?' + query : ''}`);
     const data = await res.json();
-    const rooms = data.rooms || [];
+    const rooms = Array.isArray(data) ? data : data.value || data.rooms || [];
 
     els.resultCount.textContent = `${rooms.length} room${rooms.length === 1 ? '' : 's'} found`;
     els.grid.innerHTML = rooms.map(roomCard).join('');
