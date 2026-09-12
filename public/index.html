@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<<<<<<< HEAD
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Room Directory</title>
@@ -62,5 +63,96 @@
   </main>
 
   <script src="js/app.js"></script>
+=======
+  <meta charset="UTF-8" />
+  <title>Room Application</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
+    h1, h2 { color: #14403f; }
+    form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
+    input { padding: 8px; font-size: 14px; }
+    button { padding: 10px; background: #14403f; color: white; border: none; cursor: pointer; }
+    button:hover { background: #0d2b2a; }
+    .status-box { border: 1px solid #ddd; border-radius: 6px; padding: 15px; margin-top: 20px; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: bold; color: white; }
+    .Pending { background: #e0a800; }
+    .Approved { background: #28a745; }
+    .Rejected { background: #dc3545; }
+    .error { color: #dc3545; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Room Application</h1>
+
+  <form id="applyForm">
+    <input type="text" id="studentId" placeholder="Your Student ID" required />
+    <input type="text" id="studentName" placeholder="Your Full Name" required />
+    <input type="text" id="roomId" placeholder="Room ID (e.g. R101)" required />
+    <input type="text" id="roomTitle" placeholder="Room Title" required />
+    <button type="submit">Submit Application</button>
+  </form>
+  <div id="applyMessage"></div>
+
+  <h2>Check Application Status</h2>
+  <form id="statusForm">
+    <input type="text" id="checkStudentId" placeholder="Enter your Student ID" required />
+    <button type="submit">Check Status</button>
+  </form>
+  <div id="statusResult"></div>
+
+  <script>
+    const applyForm = document.getElementById('applyForm');
+    const applyMessage = document.getElementById('applyMessage');
+    const statusForm = document.getElementById('statusForm');
+    const statusResult = document.getElementById('statusResult');
+
+    applyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      applyMessage.innerHTML = '';
+
+      const body = {
+        studentId: document.getElementById('studentId').value,
+        studentName: document.getElementById('studentName').value,
+        roomId: document.getElementById('roomId').value,
+        roomTitle: document.getElementById('roomTitle').value
+      };
+
+      const res = await fetch('/api/applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        applyMessage.innerHTML = '<p style="color:green;">Application submitted! Status: Pending</p>';
+        applyForm.reset();
+      } else {
+        applyMessage.innerHTML = `<p class="error">${data.error}</p>`;
+      }
+    });
+
+    statusForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusResult.innerHTML = 'Checking...';
+
+      const studentId = document.getElementById('checkStudentId').value;
+      const res = await fetch(`/api/applications/${studentId}`);
+      const data = await res.json();
+
+      if (res.ok) {
+        statusResult.innerHTML = `
+          <div class="status-box">
+            <p><strong>Room:</strong> ${data.roomTitle}</p>
+            <p><strong>Status:</strong> <span class="badge ${data.status}">${data.status}</span></p>
+          </div>
+        `;
+      } else {
+        statusResult.innerHTML = `<p class="error">${data.message || data.error}</p>`;
+      }
+    });
+  </script>
+>>>>>>> feature/application-module
 </body>
 </html>

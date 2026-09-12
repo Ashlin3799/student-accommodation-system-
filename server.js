@@ -8,6 +8,7 @@ const path = require("path");
 
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./src/routes/rooms");
+const applicationRoutes = require("./routes/applications");
 
 dotenv.config();
 
@@ -27,6 +28,9 @@ app.use("/api/auth", authRoutes);
 // Room Management routes
 app.use("/api/rooms", roomRoutes);
 
+// Application Module routes
+app.use("/api/applications", applicationRoutes);
+
 // Serve frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -44,7 +48,7 @@ mongoose
         console.error("MongoDB connection error:", error);
     });
 
-// Test route
+// Home route
 app.get("/", (req, res) => {
-    res.send("Student Accommodation Management System is running");
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
