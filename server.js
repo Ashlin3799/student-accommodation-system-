@@ -9,6 +9,7 @@ const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./src/routes/rooms");
 const applicationRoutes = require("./routes/applications");
+const adminRoutes = require("./routes/adminRoutes");
 
 dotenv.config();
 
@@ -31,8 +32,18 @@ app.use("/api/rooms", roomRoutes);
 // Application Module routes
 app.use("/api/applications", applicationRoutes);
 
+// Admin Review routes
+app.use("/api/admin", adminRoutes);
+
 // Serve frontend files
 app.use(express.static(path.join(__dirname, "public")));
+
+// Admin Dashboard Page
+app.get("/admin/dashboard.html", (req, res) => {
+    res.sendFile(
+        path.join(__dirname, "public", "admin", "dashboard.html")
+    );
+});
 
 // MongoDB connection
 mongoose

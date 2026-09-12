@@ -1,23 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Admin Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+ <!-- Link to external CSS  -->
+  <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
+  <div class="dashboard-container">
+    <!-- Side Navigation Menu -->
+    <nav class="sidebar">
+      <div>
+        <h2>Admin Dashboard</h2>
+        <ul>
+          <li><a href="#" class="active">Room Applications</a></li>
+          <li><a href="#">Manage Rooms</a></li>
+          <li><a href="#">Complaints</a></li>
+        </ul>
+      </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </nav>
 
-    <h1>Admin Dashboard</h1>
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <h1>Admin Dashboard</h1>
+      <p class="welcome-text">Welcome to the Administrator Dashboard.</p>
 
-    <p>Welcome to the Administrator Dashboard.</p>
+      <h2>Submitted Room Applications</h2>
+      <br>
+      <div id="applications-list">
+        <p>Loading applications...</p>
+      </div>
+    </main>
+  </div>
 
-    <button onclick="logout()">Logout</button>
-
-    <script>
-        function logout() {
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            window.location.href = "/login.html";
-        }
-    </script>
-
+  <!-- Link to external JS -->
+  <script src="/js/adminDashboard.js"></script>
 </body>
 </html>
