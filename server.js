@@ -10,6 +10,7 @@ const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./src/routes/rooms");
 const applicationRoutes = require("./routes/applications");
 const adminRoutes = require("./routes/adminRoutes");
+const complaintRoutes = require("./routes/complaintRoutes");
 
 dotenv.config();
 
@@ -34,6 +35,9 @@ app.use("/api/applications", applicationRoutes);
 
 // Admin Review routes
 app.use("/api/admin", adminRoutes);
+
+// Complaint routes
+app.use("/api/complaints", complaintRoutes);
 
 // Serve frontend files
 app.use(express.static(path.join(__dirname, "public")));
