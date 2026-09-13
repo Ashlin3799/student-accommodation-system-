@@ -154,7 +154,7 @@
 
 <div class="container">
 
-    <a href="/index.html" class="back-link">← Back to Room Directory</a>
+    <a href="javascript:void(0)" class="back-link" onclick="goBack()">← Back</a>
 
     <div class="header">
         <h1>Room Application</h1>
@@ -243,6 +243,29 @@
 
 
 <script>
+
+    // Backward routing: return to wherever the student came from
+    // (the dashboard, the room directory, etc.), with a safe fallback
+    function goBack() {
+        if (document.referrer && document.referrer.includes(window.location.host)) {
+            window.history.back();
+        } else {
+            window.location.href = "/index.html";
+        }
+    }
+
+    // Pre-fill room details if arriving from the Room Directory
+    const urlParams = new URLSearchParams(window.location.search);
+    const prefillRoomId = urlParams.get("roomId");
+    const prefillRoomTitle = urlParams.get("roomTitle");
+
+    if (prefillRoomId) {
+        document.getElementById("roomId").value = prefillRoomId;
+    }
+
+    if (prefillRoomTitle) {
+        document.getElementById("roomTitle").value = prefillRoomTitle;
+    }
 
     // Submit application
     const applyForm = document.getElementById("applyForm");

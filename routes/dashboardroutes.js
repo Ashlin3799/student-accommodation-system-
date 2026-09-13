@@ -4,20 +4,12 @@ const router = express.Router();
 
 const dashboardController = require('../controllers/dashboardcontroller');
 const authMiddleware = require('../middleware/auth');
+const roleMiddleware = require('../middleware/role');
 
 router.get(
   '/stats',
   authMiddleware,
-  (req, res, next) => {
-    if (!req.user || req.user.role !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: 'Admin access required'
-      });
-    }
-
-    next();
-  },
+  roleMiddleware('admin'),
   dashboardController.getDashboardStats
 );
 

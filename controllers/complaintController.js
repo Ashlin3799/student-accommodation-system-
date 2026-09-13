@@ -3,7 +3,7 @@ const Complaint = require('../models/Complaint');
 // ----------------------------------------------------
 // POST - Submit a new complaint
 // ----------------------------------------------------
-exports.createComplaint = async (req, res) => {
+exports.createComplaint = async (req, res, next) => {
   try {
     const { studentId, studentName, description } = req.body;
 
@@ -57,20 +57,14 @@ exports.createComplaint = async (req, res) => {
       data: savedComplaint
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      message: 'Unable to submit complaint',
-      error: error.message
-    });
+    next(error);
   }
 };
 
 // ----------------------------------------------------
 // GET - Get all complaints
 // ----------------------------------------------------
-exports.getAllComplaints = async (req, res) => {
+exports.getAllComplaints = async (req, res, next) => {
   try {
     const complaints = await Complaint.find().sort({
       createdAt: -1
@@ -82,18 +76,14 @@ exports.getAllComplaints = async (req, res) => {
       data: complaints
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Unable to retrieve complaints',
-      error: error.message
-    });
+    next(error);
   }
 };
 
 // ----------------------------------------------------
 // GET - Get complaints belonging to one student
 // ----------------------------------------------------
-exports.getStudentComplaints = async (req, res) => {
+exports.getStudentComplaints = async (req, res, next) => {
   try {
     const { studentId } = req.params;
 
@@ -116,18 +106,14 @@ exports.getStudentComplaints = async (req, res) => {
       data: complaints
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Unable to retrieve complaints',
-      error: error.message
-    });
+    next(error);
   }
 };
 
 // ----------------------------------------------------
 // GET - Get a single complaint
 // ----------------------------------------------------
-exports.getComplaintById = async (req, res) => {
+exports.getComplaintById = async (req, res, next) => {
   try {
     const complaint = await Complaint.findById(req.params.id);
 
@@ -143,10 +129,6 @@ exports.getComplaintById = async (req, res) => {
       data: complaint
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Unable to retrieve complaint',
-      error: error.message
-    });
+    next(error);
   }
 };

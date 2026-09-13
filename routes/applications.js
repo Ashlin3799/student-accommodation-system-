@@ -3,12 +3,12 @@ const router = express.Router();
 const Application = require('../models/Application');
 
 // Submit a new application
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
   try {
     const { studentId, studentName, roomId, roomTitle } = req.body;
 
     if (!studentId || !studentName || !roomId || !roomTitle) {
-      return res.status(400).json({ error: 'All fields are required.' });
+      return res.status(400).json({ success: false, message: 'All fields are required.' });
     }
 
     const existingActive = await Application.findOne({
@@ -18,7 +18,8 @@ router.post('/', async (req, res) => {
 
     if (existingActive) {
       return res.status(409).json({
-        error: 'You already have an active application.'
+        success: false,
+        message: 'You already have an active application.'
       });
     }
 
@@ -27,45 +28,42 @@ router.post('/', async (req, res) => {
 
     res.status(201).json(newApplication);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error while submitting application.' });
+    next(err);
   }
 });
 
 // Get a student's current status
-router.get('/:studentId', async (req, res) => {
+router.get('/:studentId', async (req, res, next) => {
   try {
     const application = await Application.findOne({ studentId: req.params.studentId }).sort({ createdAt: -1 });
 
     if (!application) {
-      return res.status(404).json({ message: 'No application found for this student.' });
+      return res.status(404).json({ success: false, message: 'No application found for this student.' });
     }
 
     res.json(application);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error while fetching status.' });
+    next(err);
   }
 });
 
 // Get all applications (for admin)
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   try {
     const applications = await Application.find().sort({ createdAt: -1 });
     res.json(applications);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error while fetching applications.' });
+    next(err);
   }
 });
 
 // Admin approve/reject
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', async (req, res, next) => {
   try {
     const { status } = req.body;
 
     if (!['Approved', 'Rejected', 'Pending'].includes(status)) {
-      return res.status(400).json({ error: 'Invalid status value.' });
+      return res.status(400).json({ success: false, message: 'Invalid status value.' });
     }
 
     const updated = await Application.findByIdAndUpdate(
@@ -75,13 +73,12 @@ router.patch('/:id', async (req, res) => {
     );
 
     if (!updated) {
-      return res.status(404).json({ error: 'Application not found.' });
+      return res.status(404).json({ success: false, message: 'Application not found.' });
     }
 
     res.json(updated);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error while updating status.' });
+    next(err);
   }
 });
 

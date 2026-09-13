@@ -50,6 +50,8 @@ function roomCard(room) {
         <div class="room-price">$${room.pricePerMonth}<span> /month</span></div>
         <div class="room-occupancy">${room.occupied}/${room.capacity} occupied</div>
       </div>
+
+      <a class="apply-btn" href="/application.html?roomId=${encodeURIComponent(room._id || room.roomNumber)}&roomTitle=${encodeURIComponent(room.roomNumber + ' - ' + room.building)}">Apply for this room</a>
     </article>
   `;
 }

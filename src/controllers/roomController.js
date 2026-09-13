@@ -2,7 +2,7 @@ const Room = require('../models/Room');
 
 // GET /api/rooms
 // Public, student-facing room catalogue
-exports.getRooms = async (req, res) => {
+exports.getRooms = async (req, res, next) => {
   try {
     const {
       search,
@@ -64,35 +64,30 @@ exports.getRooms = async (req, res) => {
 
     res.json(rooms);
   } catch (err) {
-    res.status(500).json({
-      message: 'Failed to fetch rooms',
-      error: err.message
-    });
+    next(err);
   }
 };
 
 // GET /api/rooms/:id
-exports.getRoom = async (req, res) => {
+exports.getRoom = async (req, res, next) => {
   try {
     const room = await Room.findById(req.params.id);
 
     if (!room) {
       return res.status(404).json({
+        success: false,
         message: 'Room not found'
       });
     }
 
     res.json(room);
   } catch (err) {
-    res.status(500).json({
-      message: 'Failed to fetch room',
-      error: err.message
-    });
+    next(err);
   }
 };
 
 // POST /api/rooms
-exports.createRoom = async (req, res) => {
+exports.createRoom = async (req, res, next) => {
   try {
     const {
       roomNumber,
@@ -118,6 +113,7 @@ exports.createRoom = async (req, res) => {
       pricePerMonth === undefined
     ) {
       return res.status(400).json({
+        success: false,
         message:
           'roomNumber, building, floor, type, capacity and pricePerMonth are required'
       });
@@ -140,15 +136,6 @@ exports.createRoom = async (req, res) => {
 
     res.status(201).json(room);
   } catch (err) {
-    if (err.code === 11000) {
-      return res.status(409).json({
-        message: 'Room number already exists'
-      });
-    }
-
-    res.status(500).json({
-      message: 'Failed to create room',
-      error: err.message
-    });
+    next(err);
   }
 };
