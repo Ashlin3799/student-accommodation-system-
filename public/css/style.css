@@ -207,3 +207,29 @@ footer {
         margin-bottom: 15px;
     }
 }
+
+/* Login Specific Layout */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+}
+
+.login-card h1 {
+    font-size: 22px;
+    margin-bottom: 5px;
+    color: #007b83;
+}
+
+.login-card h2 {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 25px;
+    font-weight: normal;
+}

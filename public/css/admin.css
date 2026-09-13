@@ -1,111 +1,199 @@
-* { 
-  box-sizing: border-box; 
-  margin: 0; 
-  padding: 0; 
-  font-family: Arial, sans-serif; 
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
 }
 
-.dashboard-container { 
-  display: flex; 
-  min-height: 100vh; 
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
 }
 
-.sidebar { 
-  width: 240px; 
-  background: #1e293b; 
-  color: #fff; 
-  padding: 20px; 
-  display: flex; 
-  flex-direction: column; 
-  justify-content: space-between; 
+/* Sidebar Styling */
+.sidebar {
+  width: 240px;
+  background: #1e293b;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.sidebar h2 { 
-  margin-bottom: 20px; 
-  font-size: 1.2rem; 
-  border-bottom: 1px solid #334155; 
-  padding-bottom: 10px; 
+.sidebar h2 {
+  margin-bottom: 5px;
+  font-size: 1.2rem;
+  padding-bottom: 5px;
 }
 
-.sidebar ul { 
-  list-style: none; 
+.sidebar #adminName {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 10px;
 }
 
-.sidebar li { 
-  margin-bottom: 15px; 
+.sidebar ul {
+  list-style: none;
 }
 
-.sidebar a { 
-  color: #cbd5e1; 
-  text-decoration: none; 
-  font-weight: 500; 
+.sidebar li {
+  margin-bottom: 15px;
 }
 
-.sidebar a.active { 
-  color: #38bdf8; 
-  font-weight: bold; 
+.sidebar a {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-weight: 500;
 }
 
-.logout-btn { 
-  background: #ef4444; 
-  color: white; 
-  border: none; 
-  padding: 10px 15px; 
-  border-radius: 5px; 
-  cursor: pointer; 
-  font-weight: bold; 
-  width: 100%; 
+.sidebar a.active {
+  color: #38bdf8;
+  font-weight: bold;
 }
 
-.logout-btn:hover { 
-  background: #dc2626; 
+.logout-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  width: 100%;
 }
 
-.main-content { 
-  flex: 1; 
-  padding: 30px; 
-  background: #f8fafc; 
+.logout-btn:hover {
+  background: #dc2626;
 }
 
-.main-content h1 { 
-  font-size: 1.5rem; 
-  margin-bottom: 10px; 
-  color: #0f172a; 
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  padding: 30px;
+  background: #f8fafc;
 }
 
-.welcome-text { 
-  margin-bottom: 20px; 
-  color: #64748b; 
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-.app-card { 
-  background: #fff; 
-  border: 1px solid #e2e8f0; 
-  padding: 16px; 
-  margin-bottom: 12px; 
-  border-radius: 8px; 
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+.dashboard-header h1 {
+  font-size: 1.5rem;
+  color: #0f172a;
 }
 
-.app-card h3 { 
-  font-size: 1.1rem; 
-  color: #1e293b; 
-  margin-bottom: 8px; 
+.dashboard-header p {
+  color: #64748b;
+  font-size: 0.95rem;
 }
 
-.app-card p { 
-  margin-bottom: 6px; 
-  color: #475569; 
-  font-size: 0.95rem; 
+.dashboard-refresh {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
 }
 
-.badge-pending { 
-  background: #fef3c7; 
-  color: #d97706; 
-  padding: 2px 8px; 
-  border-radius: 4px; 
-  font-weight: 600; 
-  font-size: 0.85rem; 
+.dashboard-section {
+  margin-bottom: 30px;
+}
+
+.dashboard-section h3, .dashboard-section h2 {
+  font-size: 1.2rem;
+  color: #1e293b;
+  margin-bottom: 12px;
+}
+
+/* Grid Layout for Stats Cards */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background: white;
+  padding: 18px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.stat-card h4 {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #2563eb;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.stat-card p {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+/* Application Card Styling */
+.app-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.app-card h3 {
+  font-size: 1.1rem;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.app-card p {
+  margin-bottom: 6px;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.badge-pending {
+  background: #fef3c7;
+  color: #d97706;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.badge-approved {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.badge-rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
 }
 
 /* Modal Styling */
