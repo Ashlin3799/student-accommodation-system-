@@ -35,6 +35,30 @@ async function fetchApplications() {
     console.error('Error fetching applications:', err);
     document.getElementById('applications-list').innerHTML = '<p style="color: red;">Failed to load applications.</p>';
   }
+
+  // Function to open modal with full info
+function showDetails(appId) {
+  // Finding app locally (or fetch via GET /api/admin/applications/:id later)
+  const app = currentApplications.find(item => item.id === appId);
+  if (!app) return;
+
+  const modalBody = document.getElementById('modalBody');
+  modalBody.innerHTML = `
+    <p><strong>Student Name:</strong> ${app.studentName}</p>
+    <p><strong>Requested Room:</strong> ${app.roomRequested}</p>
+    <p><strong>Date Submitted:</strong> ${app.date}</p>
+    <p><strong>Status:</strong> ${app.status}</p>
+    <p><strong>Email:</strong> student@example.com</p>
+    <p><strong>Contact:</strong> +1 234 567 890</p>
+  `;
+
+  document.getElementById('detailsModal').style.display = 'flex';
+}
+// Function to close modal
+function closeModal() {
+  document.getElementById('detailsModal').style.display = 'none';
+}
+
 }
 
 

@@ -1,5 +1,4 @@
 global.crypto = require("crypto").webcrypto;
-
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
@@ -24,52 +23,38 @@ const MONGO_URI = process.env.MONGO_URI;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Authentication routes
-app.use("/api/auth", authRoutes);
-
-// Room Management routes
-app.use("/api/rooms", roomRoutes);
-
-// Application Module routes
-app.use("/api/applications", applicationRoutes);
-
-// Admin Review routes
-app.use("/api/admin", adminRoutes);
-
-// Complaint routes
-app.use("/api/complaints", complaintRoutes);
-
-// Dashboard routes
-app.use("/api/dashboard", dashboardRoutes);
-
-// Home route - Login page
-app.get("/", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "public", "login.html")
-    );
-});
-
-// Serve frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Admin Dashboard Page
-app.get("/admin/dashboard.html", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "public", "admin", "dashboard.html")
-    );
+// API Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/rooms", roomRoutes);
+app.use("/api/applications", applicationRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/complaints", complaintRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+
+app.get('/api/student', (req, res) => {
+  res.json({ name: "Purva Dilip Dongre", studentId: "s225385045" });
 });
 
-// MongoDB connection
-mongoose
-    .connect(MONGO_URI)
-    .then(() => {
-        console.log("MongoDB connected successfully");
+// HTML Page Routes
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
 
-        app.listen(PORT, () => {
-            console.log(`Server running on http://localhost:${PORT}`);
-        });
-    })
-    .catch((error) => {
-        console.error("MongoDB connection error:", error);
+app.get("/admin/dashboard.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin", "dashboard.html"));
+});
+
+// MongoDB Connection
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
+    console.log("MongoDB connected successfully");
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
     });
+  })
+  .catch((error) => {
+    console.error("MongoDB connection error:", error);
+  });
