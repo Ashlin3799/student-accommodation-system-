@@ -58,3 +58,7 @@ mongoose
   .catch((error) => {
     console.error("MongoDB connection error:", error);
   });
+
+//   app.get("/", (req, res) => {
+//   res.redirect("/login.html");
+// });
