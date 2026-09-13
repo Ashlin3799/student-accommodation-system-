@@ -1,35 +1,75 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const path = require('path');
+global.crypto = require("crypto").webcrypto;
 
-const applicationRoutes = require('./routes/applications');
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const path = require("path");
+
+const authRoutes = require("./routes/authRoutes");
+const roomRoutes = require("./src/routes/rooms");
+const applicationRoutes = require("./routes/applications");
+const adminRoutes = require("./routes/adminRoutes");
+const complaintRoutes = require("./routes/complaintRoutes");
+const dashboardRoutes = require("./routes/dashboardroutes");
+
+dotenv.config();
 
 const app = express();
+
 const PORT = process.env.PORT || 3000;
-
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
 const MONGO_URI = process.env.MONGO_URI;
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.get('/api/student', (req, res) => {
-  res.json({
-    name: "Purva Dilip Dongre",
-    studentId: "s225385045"
-  });
+// Authentication routes
+app.use("/api/auth", authRoutes);
+
+// Room Management routes
+app.use("/api/rooms", roomRoutes);
+
+// Application Module routes
+app.use("/api/applications", applicationRoutes);
+
+// Admin Review routes
+app.use("/api/admin", adminRoutes);
+
+// Complaint routes
+app.use("/api/complaints", complaintRoutes);
+
+// Dashboard routes
+app.use("/api/dashboard", dashboardRoutes);
+
+// Home route - Login page
+app.get("/", (req, res) => {
+    res.sendFile(
+        path.join(__dirname, "public", "login.html")
+    );
 });
 
-app.use('/api/applications', applicationRoutes);
+// Serve frontend files
+app.use(express.static(path.join(__dirname, "public")));
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Admin Dashboard Page
+app.get("/admin/dashboard.html", (req, res) => {
+    res.sendFile(
+        path.join(__dirname, "public", "admin", "dashboard.html")
+    );
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+// MongoDB connection
+mongoose
+    .connect(MONGO_URI)
+    .then(() => {
+        console.log("MongoDB connected successfully");
+
+        app.listen(PORT, () => {
+            console.log(`Server running on http://localhost:${PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.error("MongoDB connection error:", error);
+    });

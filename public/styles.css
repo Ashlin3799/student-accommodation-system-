@@ -1,0 +1,232 @@
+:root {
+  --pine-950: #12201a;
+  --pine-900: #1a2e24;
+  --pine-800: #24402f;
+  --brass: #c9a227;
+  --brass-dim: #a4841f;
+  --parchment: #f1ead9;
+  --sage: #9cb0a2;
+  --sage-dim: #6d8175;
+  --ok: #6fa287;
+  --warn: #c9a227;
+  --busy: #b4543a;
+  --off: #7a7a7a;
+
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter', -apple-system, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--pine-950);
+  color: var(--parchment);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.topbar {
+  border-bottom: 1px solid rgba(241, 234, 217, 0.12);
+  padding: 2.75rem 1.5rem 2rem;
+}
+
+.topbar-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.wordmark {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(2.1rem, 4vw, 3rem);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.tagline {
+  margin: 0.4rem 0 0;
+  color: var(--sage);
+  font-size: 1rem;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 4rem;
+}
+
+.board {
+  background: var(--pine-900);
+  border: 1px solid rgba(241, 234, 217, 0.1);
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+.board-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.board-row + .board-row {
+  margin-top: 0.6rem;
+}
+
+input, select, button {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  background: var(--pine-950);
+  color: var(--parchment);
+  border: 1px solid rgba(241, 234, 217, 0.18);
+  border-radius: 3px;
+  padding: 0.55rem 0.7rem;
+}
+
+input::placeholder { color: var(--sage-dim); }
+
+#search { flex: 1 1 220px; min-width: 180px; }
+
+select { min-width: 130px; cursor: pointer; }
+
+#minPrice, #maxPrice { width: 90px; }
+
+.price-label {
+  color: var(--sage);
+  font-size: 0.85rem;
+}
+
+button {
+  cursor: pointer;
+  border-color: var(--brass-dim);
+  color: var(--brass);
+  background: transparent;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+button:hover {
+  background: var(--brass);
+  color: var(--pine-950);
+}
+
+.result-count {
+  color: var(--sage);
+  font-size: 0.85rem;
+  margin: 0 0 1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.room-card {
+  background: var(--pine-900);
+  border: 1px solid rgba(241, 234, 217, 0.1);
+  border-radius: 4px;
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.room-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.room-number {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  color: var(--brass);
+  letter-spacing: 0.02em;
+}
+
+.room-building {
+  font-size: 0.8rem;
+  color: var(--sage);
+  margin-top: 0.15rem;
+}
+
+.status-tag {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.status-available { color: var(--ok); border-color: var(--ok); }
+.status-occupied   { color: var(--busy); border-color: var(--busy); }
+.status-reserved   { color: var(--warn); border-color: var(--warn); }
+.status-maintenance{ color: var(--off); border-color: var(--off); }
+
+.room-type {
+  font-size: 0.85rem;
+  color: var(--parchment);
+  text-transform: capitalize;
+}
+
+.room-desc {
+  font-size: 0.85rem;
+  color: var(--sage);
+  line-height: 1.45;
+  flex-grow: 1;
+}
+
+.room-amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.amenity {
+  font-size: 0.72rem;
+  color: var(--sage);
+  border: 1px solid rgba(156, 176, 162, 0.35);
+  border-radius: 2px;
+  padding: 0.15rem 0.4rem;
+}
+
+.room-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-top: 1px solid rgba(241, 234, 217, 0.1);
+  padding-top: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.room-price {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  color: var(--parchment);
+}
+
+.room-price span {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  color: var(--sage);
+}
+
+.room-occupancy {
+  font-size: 0.78rem;
+  color: var(--sage);
+}
+
+.empty-state {
+  color: var(--sage);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .board-row { flex-direction: column; align-items: stretch; }
+  #minPrice, #maxPrice { width: 100%; }
+}
