@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Room Application</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7f7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: #14403f;
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+        }
+
+        .header p {
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #14403f;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        input {
+            padding: 11px;
+            font-size: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #14403f;
+        }
+
+        button {
+            padding: 12px;
+            background: #14403f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background: #0d2b2a;
+        }
+
+        .message {
+            margin-top: 15px;
+        }
+
+        .success {
+            color: #218838;
+            background: #eaf7ed;
+            padding: 12px;
+            border-radius: 5px;
+        }
+
+        .error {
+            color: #c82333;
+            background: #fdebec;
+            padding: 12px;
+            border-radius: 5px;
+        }
+
+        .status-box {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 18px;
+            margin-top: 15px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .Pending {
+            background: #e0a800;
+        }
+
+        .Approved {
+            background: #28a745;
+        }
+
+        .Rejected {
+            background: #dc3545;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #14403f;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <a href="/" class="back-link">← Back to Room Directory</a>
+
+    <div class="header">
+        <h1>Room Application</h1>
+        <p>Apply for student accommodation and check your application status.</p>
+    </div>
+
+    <!-- Submit Application -->
+    <div class="card">
+
+        <h2>Apply for a Room</h2>
+
+        <form id="applyForm">
+
+            <label for="studentId">Student ID</label>
+            <input
+                type="text"
+                id="studentId"
+                placeholder="Enter your Student ID"
+                required
+            >
+
+            <label for="studentName">Full Name</label>
+            <input
+                type="text"
+                id="studentName"
+                placeholder="Enter your full name"
+                required
+            >
+
+            <label for="roomId">Room ID</label>
+            <input
+                type="text"
+                id="roomId"
+                placeholder="Example: R101"
+                required
+            >
+
+            <label for="roomTitle">Room Title</label>
+            <input
+                type="text"
+                id="roomTitle"
+                placeholder="Example: Single Room"
+                required
+            >
+
+            <button type="submit">
+                Submit Application
+            </button>
+
+        </form>
+
+        <div id="applyMessage" class="message"></div>
+
+    </div>
+
+
+    <!-- Check Application Status -->
+    <div class="card">
+
+        <h2>Check Application Status</h2>
+
+        <form id="statusForm">
+
+            <label for="checkStudentId">
+                Student ID
+            </label>
+
+            <input
+                type="text"
+                id="checkStudentId"
+                placeholder="Enter your Student ID"
+                required
+            >
+
+            <button type="submit">
+                Check Status
+            </button>
+
+        </form>
+
+        <div id="statusResult"></div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // Submit application
+    const applyForm = document.getElementById("applyForm");
+    const applyMessage = document.getElementById("applyMessage");
+
+    applyForm.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        applyMessage.innerHTML = "";
+
+        const body = {
+            studentId: document.getElementById("studentId").value.trim(),
+            studentName: document.getElementById("studentName").value.trim(),
+            roomId: document.getElementById("roomId").value.trim(),
+            roomTitle: document.getElementById("roomTitle").value.trim()
+        };
+
+        try {
+
+            const response = await fetch("/api/applications", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+
+                applyMessage.innerHTML = `
+                    <div class="success">
+                        Application submitted successfully!
+                        <br>
+                        Status: <strong>Pending</strong>
+                    </div>
+                `;
+
+                applyForm.reset();
+
+            } else {
+
+                applyMessage.innerHTML = `
+                    <div class="error">
+                        ${data.error || data.message || "Failed to submit application."}
+                    </div>
+                `;
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            applyMessage.innerHTML = `
+                <div class="error">
+                    Unable to connect to the server.
+                    Please try again.
+                </div>
+            `;
+        }
+
+    });
+
+
+    // Check application status
+    const statusForm = document.getElementById("statusForm");
+    const statusResult = document.getElementById("statusResult");
+
+    statusForm.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        statusResult.innerHTML = "<p>Checking application...</p>";
+
+        const studentId =
+            document.getElementById("checkStudentId").value.trim();
+
+        try {
+
+            const response =
+                await fetch(`/api/applications/${studentId}`);
+
+            const data = await response.json();
+
+            if (response.ok) {
+
+                statusResult.innerHTML = `
+                    <div class="status-box">
+
+                        <p>
+                            <strong>Room:</strong>
+                            ${data.roomTitle || data.roomId || "N/A"}
+                        </p>
+
+                        <p>
+                            <strong>Status:</strong>
+                            <span class="badge ${data.status}">
+                                ${data.status}
+                            </span>
+                        </p>
+
+                    </div>
+                `;
+
+            } else {
+
+                statusResult.innerHTML = `
+                    <div class="error">
+                        ${data.message || data.error || "Application not found."}
+                    </div>
+                `;
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            statusResult.innerHTML = `
+                <div class="error">
+                    Unable to connect to the server.
+                    Please try again.
+                </div>
+            `;
+        }
+
+    });
+
+</script>
+
+</body>
+</html>

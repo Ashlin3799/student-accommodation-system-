@@ -3,40 +3,134 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
- <!-- Link to external CSS  -->
+  <title>Admin Dashboard - Student Accommodation</title>
   <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
   <div class="dashboard-container">
-    <!-- Side Navigation Menu -->
-    <nav class="sidebar">
+    <!-- Sidebar -->
+    <aside class="sidebar">
       <div>
-        <h2>Admin Dashboard</h2>
+        <h2>Admin Portal</h2>
+        <p id="adminName">Administrator</p>
         <ul>
-          <li><a href="#" class="active">Room Applications</a></li>
-          <li><a href="#">Manage Rooms</a></li>
-          <li><a href="#">Complaints</a></li>
+          <li><a href="/admin/dashboard.html" class="active">Dashboard</a></li>
+          <li><a href="/index.html">Manage Rooms</a></li>
+          <li><a href="#applications">Room Applications</a></li>
+          <li><a href="/complaints.html">Complaints</a></li>
         </ul>
       </div>
-      <button class="logout-btn" onclick="logout()">Logout</button>
-    </nav>
+      <button type="button" class="logout-btn" onclick="logout()">Logout</button>
+    </aside>
 
-    <!-- Main Content Area -->
+    <!-- Main Content -->
     <main class="main-content">
-      <h1>Admin Dashboard</h1>
-      <p class="welcome-text">Welcome to the Administrator Dashboard.</p>
-
-      <h2>Submitted Room Applications</h2>
-      <br>
-      <div id="applications-list">
-        <p>Loading applications...</p>
+      <div class="dashboard-header">
+        <div>
+          <h1>Administrative Dashboard</h1>
+          <p>Welcome, <span id="welcomeName">Administrator</span>.</p>
+        </div>
+        <button id="refreshDashboardBtn" class="dashboard-refresh" type="button">Refresh</button>
       </div>
+
+      <p id="dashboardMessage" class="dashboard-message"></p>
+
+      <!-- Room Statistics -->
+      <section class="dashboard-section">
+        <h3>Room Statistics</h3>
+        <div class="dashboard-grid">
+          <div class="stat-card">
+            <h4>Total Rooms</h4>
+            <span id="totalRooms" class="stat-value">0</span>
+            <p>Registered rooms</p>
+          </div>
+          <div class="stat-card">
+            <h4>Total Capacity</h4>
+            <span id="totalCapacity" class="stat-value">0</span>
+            <p>Total available beds</p>
+          </div>
+          <div class="stat-card">
+            <h4>Occupied</h4>
+            <span id="totalOccupied" class="stat-value">0</span>
+            <p>Currently occupied beds</p>
+          </div>
+          <div class="stat-card">
+            <h4>Available</h4>
+            <span id="availableBeds" class="stat-value">0</span>
+            <p>Available beds</p>
+          </div>
+          <div class="stat-card">
+            <h4>Occupancy Rate</h4>
+            <span id="occupancyRate" class="stat-value">0%</span>
+            <p>Current occupancy</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Application Statistics -->
+      <section id="applications" class="dashboard-section">
+        <h3>Application Statistics</h3>
+        <div class="dashboard-grid">
+          <div class="stat-card">
+            <h4>Total Applications</h4>
+            <span id="totalApplications" class="stat-value">0</span>
+            <p>All applications</p>
+          </div>
+          <div class="stat-card">
+            <h4>Pending</h4>
+            <span id="pendingApplications" class="stat-value">0</span>
+            <p>Waiting for review</p>
+          </div>
+          <div class="stat-card">
+            <h4>Approved</h4>
+            <span id="approvedApplications" class="stat-value">0</span>
+            <p>Approved applications</p>
+          </div>
+          <div class="stat-card">
+            <h4>Rejected</h4>
+            <span id="rejectedApplications" class="stat-value">0</span>
+            <p>Rejected applications</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Room Applications List -->
+      <section class="dashboard-section">
+        <h2>Submitted Room Applications</h2>
+        <br>
+        <div id="applications-list">
+          <p>Loading applications...</p>
+        </div>
+      </section>
+
+      <!-- Complaint Statistics -->
+      <section class="dashboard-section">
+        <h3>Complaint Statistics</h3>
+        <div class="dashboard-grid">
+          <div class="stat-card">
+            <h4>Total Complaints</h4>
+            <span id="totalComplaints" class="stat-value">0</span>
+            <p>All complaints</p>
+          </div>
+          <div class="stat-card">
+            <h4>Pending</h4>
+            <span id="pendingComplaints" class="stat-value">0</span>
+            <p>Pending complaints</p>
+          </div>
+          <div class="stat-card">
+            <h4>In Progress</h4>
+            <span id="progressComplaints" class="stat-value">0</span>
+            <p>Complaints being handled</p>
+          </div>
+          <div class="stat-card">
+            <h4>Resolved</h4>
+            <span id="resolvedComplaints" class="stat-value">0</span>
+            <p>Resolved complaints</p>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
-
-  <!-- Link to external JS -->
-  <script src="/js/adminDashboard.js"></script>
 
   <!-- Application Details Modal -->
   <div id="detailsModal" class="modal" style="display: none;">
@@ -45,14 +139,13 @@
       <h2>Application Details</h2>
       <hr style="margin: 10px 0;">
       <div id="modalBody">
-
-
-        <!-- Dynamic student info  -->
-
-        
+        <!-- Dynamic student info renders here -->
       </div>
     </div>
   </div>
 
+  <!-- Scripts -->
+  <script src="/js/adminDashboard.js"></script>
+  <script src="/dashboard.js"></script>
 </body>
 </html>
