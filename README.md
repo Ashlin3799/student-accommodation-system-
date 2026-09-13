@@ -1,73 +1,97 @@
-# Student Accommodation System (SIT725 Group Assignment)
+# Student Accommodation Management System — Sprint 1
 
-A Node.js + Express + MongoDB application. This individual submission covers the 
-**Application Module**: students can submit room applications and track their status 
-(Pending/Approved/Rejected), and includes Docker containerisation.
+A Node.js + Express + MongoDB application covering all six Sprint 1 modules:
+Authentication & Access Control, Admin Review & Approval, Complaint Module,
+Reporting & Dashboard, Application Module, and Room Management.
 
-## Features
-- `POST /api/applications` — submit a new room application
-- `GET /api/applications/:studentId` — check a student's application status
-- `PATCH /api/applications/:id` — admin approve/reject an application
-- `GET /api/student` — returns submitter's name and student ID
-- Duplicate application prevention (a student cannot have two active applications)
-- Simple frontend to submit and track applications
+This is a cleaned-up version of the Sprint 1 codebase — a handful of bugs
+found during integration testing (a server-crashing require path, a
+hardcoded login bypass, a scoping bug in the admin dashboard script, a
+mismatched sort parameter, and some duplicate/dead files) have been fixed,
+and a registration page was added so the app is fully usable from the
+browser with no manual API calls required.
 
-## Tech Stack
-- Node.js + Express
-- MongoDB (via Mongoose)
-- Docker for containerisation
+## Prerequisites
 
----
+- **Node.js** (v18 or newer) — check with `node -v`
+- **MongoDB** running locally on `127.0.0.1:27017`, OR a free
+  [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) cluster
 
-## Running with Docker (Recommended)
+## Setup
 
-### Prerequisites
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-- MongoDB running locally on your machine, accessible at `localhost:27017`
-  (e.g. via MongoDB Community Server + Compass, or `mongod` running as a service)
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-### Configuration
-This app requires a `MONGO_URI` environment variable pointing to a MongoDB instance.
+2. **Configure environment variables**
+   A working `.env` file is already included, pointing at a local MongoDB
+   instance:
+   ```
+   PORT=3000
+   MONGO_URI=mongodb://127.0.0.1:27017/student_accommodation
+   JWT_SECRET=dev-secret-change-me
+   ```
+   - If you're using **MongoDB Compass / a local install**, just make sure
+     the MongoDB service is running — the included `.env` will work as-is.
+   - If you're using **MongoDB Atlas**, replace the `MONGO_URI` line with
+     your Atlas connection string.
+   - Change `JWT_SECRET` to anything you like before sharing this beyond
+     your own machine.
 
-1. Copy `.env.example` to `.env`:
-2. Open `.env` and set the connection string. Since MongoDB runs on the **host machine** 
-   (not inside the container), use Docker's special hostname to reach it:
-      > Note: `host.docker.internal` allows the container to connect to MongoDB running 
-   > on your local machine. This is required on Docker Desktop (Windows/Mac).
+3. **(Optional) Seed sample room data**
+   ```bash
+   npm run seed
+   ```
+   Populates the `rooms` collection with 10 sample rooms so the room
+   directory isn't empty on first load.
 
-No other secrets or credentials are required — this project uses a local, unauthenticated 
-MongoDB instance for simplicity, so there is no password to provide.
+4. **Start the server**
+   ```bash
+   npm start
+   ```
+   or, for auto-restart on file changes during development:
+   ```bash
+   npm run dev
+   ```
+   You should see:
+   ```
+   MongoDB connected successfully
+   Server running on http://localhost:3000
+   ```
 
-### Build and Run
+5. **Open the app**
+   Go to `http://localhost:3000` in your browser.
 
-1. Build the Docker image:
-docker build -t accommodation-app .
-2. Run the container:
-docker run -p 3000:3000 --env-file .env accommodation-app
-3. Open your browser at:
-http://localhost:3000
+## Using the app
 
-### Verifying it works
-- Visit `http://localhost:3000` — submit a test application via the form.
-- Visit `http://localhost:3000/api/student` — should return:
-```json
-  {
-    "name": "Purva Dilip Dongre",
-    "studentId": "s225385045"
-  }
-```
-- Check MongoDB (via Compass, connecting to `localhost:27017`) — the `accommodation-app` 
-  database should contain an `applications` collection with your submitted data, confirming 
-  the database integration works end-to-end.
+- **Register** a new account at `/register.html` (choose "Student" or
+  "Admin" as the account type), or use the link on the login page.
+- **Log in** at `/login.html` — students are redirected to
+  `/student/dashboard.html`, admins to `/admin/dashboard.html`.
+- **Browse rooms** at `/index.html` — search, filter by type/status/price,
+  and sort.
+- **Apply for a room / track status** at `/application.html`.
+- **File or view complaints** at `/complaints.html`.
+- **Admin dashboard** (`/admin/dashboard.html`) shows live room, application,
+  and complaint statistics, plus a list of submitted applications with
+  Approve/Reject actions.
 
----
+## Module → API reference
 
-## Running without Docker (for local development)
+| Module | Endpoints |
+|---|---|
+| Auth | `POST /api/auth/register`, `POST /api/auth/login` |
+| Rooms | `GET /api/rooms` (supports `search`, `type`, `status`, `minPrice`, `maxPrice`, `sort`), `GET /api/rooms/:id`, `POST /api/rooms` |
+| Applications | `POST /api/applications`, `GET /api/applications/:studentId`, `GET /api/applications`, `PATCH /api/applications/:id` |
+| Complaints | `POST /api/complaints`, `GET /api/complaints`, `GET /api/complaints/student/:studentId`, `GET /api/complaints/:id` |
+| Dashboard | `GET /api/dashboard/stats` (admin-only, requires a Bearer token) |
 
-1. Install dependencies:
-npm install
-2. Create `.env` from `.env.example` and set:
-MONGO_URI=mongodb://localhost:27017/accommodation-app
-   (use `localhost`, not `host.docker.internal`, when running outside Docker)
-3. Start the app:npm start
-4. Visit `http://localhost:3000`
+## Notes for teammates
+
+- The `.env` file is included here for convenience so this runs immediately
+  on a fresh clone — in a real production setting you'd keep `.env` out of
+  version control (see `.gitignore`) and share secrets separately.
+- `src/config/db.js` exists as an alternative Mongo connection helper with
+  retry logic but isn't currently wired into `server.js` — feel free to use
+  it in Sprint 2 if you want reconnect behaviour.

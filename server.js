@@ -8,9 +8,9 @@ const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./src/routes/rooms");
 const applicationRoutes = require("./routes/applications");
-const adminRoutes = require("./routes/adminRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
 const dashboardRoutes = require("./routes/dashboardroutes");
+const errorHandler = require("./middleware/errorhandler");
 
 dotenv.config();
 
@@ -23,13 +23,12 @@ const MONGO_URI = process.env.MONGO_URI;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public"), { index: false }));
 
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/applications", applicationRoutes);
-app.use("/api/admin", adminRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
@@ -46,6 +45,9 @@ app.get("/admin/dashboard.html", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "admin", "dashboard.html"));
 });
 
+// Centralized error handler (must be registered after all routes)
+app.use(errorHandler);
+
 // MongoDB Connection
 mongoose
   .connect(MONGO_URI)
@@ -58,7 +60,3 @@ mongoose
   .catch((error) => {
     console.error("MongoDB connection error:", error);
   });
-
-//   app.get("/", (req, res) => {
-//   res.redirect("/login.html");
-// });
