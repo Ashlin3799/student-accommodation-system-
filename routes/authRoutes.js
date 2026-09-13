@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const User = require("../models/user");
 
 const authMiddleware = require("../middleware/auth");
 const roleMiddleware = require("../middleware/role");
@@ -10,13 +10,14 @@ const router = express.Router();
 
 
 // Register a new user
-router.post("/register", async (req, res) => {
+router.post("/register", async (req, res, next) => {
     try {
         const { name, email, password, role } = req.body;
 
         // Check required fields
         if (!name || !email || !password) {
             return res.status(400).json({
+                success: false,
                 message: "Name, email and password are required"
             });
         }
@@ -26,6 +27,7 @@ router.post("/register", async (req, res) => {
 
         if (existingUser) {
             return res.status(400).json({
+                success: false,
                 message: "User already exists"
             });
         }
@@ -44,27 +46,25 @@ router.post("/register", async (req, res) => {
         await user.save();
 
         res.status(201).json({
+            success: true,
             message: "User registered successfully"
         });
 
     } catch (error) {
-        console.error(error);
-
-        res.status(500).json({
-            message: "Server error"
-        });
+        next(error);
     }
 });
 
 
 // Login
-router.post("/login", async (req, res) => {
+router.post("/login", async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
         // Check fields
         if (!email || !password) {
             return res.status(400).json({
+                success: false,
                 message: "Email and password are required"
             });
         }
@@ -74,6 +74,7 @@ router.post("/login", async (req, res) => {
 
         if (!user) {
             return res.status(401).json({
+                success: false,
                 message: "Invalid email or password"
             });
         }
@@ -86,6 +87,7 @@ router.post("/login", async (req, res) => {
 
         if (!passwordMatch) {
             return res.status(401).json({
+                success: false,
                 message: "Invalid email or password"
             });
         }
@@ -103,6 +105,7 @@ router.post("/login", async (req, res) => {
         );
 
         res.json({
+            success: true,
             message: "Login successful",
             token,
             user: {
@@ -114,15 +117,10 @@ router.post("/login", async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-
-        res.status(500).json({
-            message: "Server error"
-        });
+        next(error);
     }
 });
 
-module.exports = router;
 // Protected test route
 router.get("/test", authMiddleware, (req, res) => {
     res.json({
@@ -142,3 +140,5 @@ router.get(
         });
     }
 );
+
+module.exports = router;

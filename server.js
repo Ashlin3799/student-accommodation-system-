@@ -8,8 +8,8 @@ const path = require("path");
 
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-const dashboardRoutes = require("./routes/dashboardRoutes");
-const errorHandler = require("./middleware/errorHandler");
+const dashboardRoutes = require("./routes/dashboardroutes");
+const errorHandler = require("./middleware/errorhandler");
 
 dotenv.config();
 
