@@ -139,3 +139,90 @@ exports.createRoom = async (req, res, next) => {
     next(err);
   }
 };
+
+// PUT /api/rooms/:id
+// Admin update — e.g. change status, price, capacity, occupied count.
+// Only touches fields that are actually sent, so partial updates
+// (like flipping a room to "maintenance") don't require resending
+// the whole record.
+exports.updateRoom = async (req, res, next) => {
+  try {
+    const allowedFields = [
+      'roomNumber',
+      'building',
+      'floor',
+      'type',
+      'capacity',
+      'occupied',
+      'pricePerMonth',
+      'currency',
+      'status',
+      'amenities',
+      'images',
+      'description'
+    ];
+
+    const updates = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No valid fields provided to update'
+      });
+    }
+
+    if (
+      updates.capacity !== undefined &&
+      updates.occupied !== undefined &&
+      Number(updates.occupied) > Number(updates.capacity)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: 'occupied cannot exceed capacity'
+      });
+    }
+
+    const room = await Room.findByIdAndUpdate(req.params.id, updates, {
+      new: true,
+      runValidators: true
+    });
+
+    if (!room) {
+      return res.status(404).json({
+        success: false,
+        message: 'Room not found'
+      });
+    }
+
+    res.json(room);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// DELETE /api/rooms/:id
+exports.deleteRoom = async (req, res, next) => {
+  try {
+    const room = await Room.findByIdAndDelete(req.params.id);
+
+    if (!room) {
+      return res.status(404).json({
+        success: false,
+        message: 'Room not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Room deleted',
+      room
+    });
+  } catch (err) {
+    next(err);
+  }
+};

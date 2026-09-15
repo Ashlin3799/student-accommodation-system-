@@ -95,3 +95,76 @@ browser with no manual API calls required.
 - `src/config/db.js` exists as an alternative Mongo connection helper with
   retry logic but isn't currently wired into `server.js` — feel free to use
   it in Sprint 2 if you want reconnect behaviour.
+
+# Room Management Module - Sanika
+
+This is my part of the group project for Sprint 1 — the Room Management module of the student accommodation system. This document covers what I built, how it works, and how I tested it.
+
+## Overview
+
+Rooms are stored in MongoDB, with fields covering the room number, building, floor, type, capacity, current occupancy, price, currency, status (available, occupied, reserved, or maintenance), amenities, images, and a description. The API allows the rest of the app to create rooms, list and filter them, look up a single room, update one, or delete one.
+
+Most of the validation is handled directly in the Mongoose schema rather than in the route code — room numbers must be unique, capacity must be at least 1, price can't be negative, and status has to be one of a fixed set of values. Keeping validation in the schema means there's a single source of truth for what counts as a valid room, instead of duplicating those checks across different route handlers.
+
+## Endpoints
+
+* **`GET /api/rooms`** — lists rooms. Supports filtering by `type`, `status`, and a price range (`minPrice`/`maxPrice`), a `search` param that does a case-insensitive match across room number, building, and amenities, and a `sort` param (e.g. `price_asc`).
+* **`GET /api/rooms/:id`** — returns a single room, or a 404 if it doesn't exist.
+* **`POST /api/rooms`** — creates a room. Rejects the request if required fields are missing, and fills in sensible defaults for anything optional (occupied starts at 0, currency defaults to USD, status defaults to available, amenities/images/description default to empty). If Mongoose raises a validation error — an invalid status, a negative capacity or price — it comes back as a 400. If the room number already exists, MongoDB raises a duplicate-key error, which gets translated into a 409.
+* **`PUT /api/rooms/:id`** — applies a partial update. It won't let `occupied` exceed `capacity`, returns a 404 if the room doesn't exist, and a 400 if the request doesn't contain any recognised fields.
+* **`DELETE /api/rooms/:id`** — deletes a room, returning a 404 if it isn't found.
+
+## Testing
+
+I wrote a Jest and Supertest suite in `tests/room.test.js` — 18 tests, all passing. It runs against a mocked Room model rather than a live database, so it's fast and doesn't depend on MongoDB being available.
+
+One decision worth explaining: I didn't rely on Jest's automatic mocking (`jest.mock('../src/models/Room')`) on its own. Automocking doesn't reliably pick up methods on Mongoose models — things like `find` or `create` can end up `undefined` instead of proper mock functions, which causes tests to fail in confusing ways that have nothing to do with the actual logic being tested. Instead, I wrote the mock explicitly, defining each method as a `jest.fn()`, which guarantees every method exists and lets me control exactly what it returns in each test.
+
+The suite covers:
+
+* listing rooms with no filters, and with type, status, and price filters combined
+* the search behaviour across multiple fields
+* sorting
+* 404 responses when getting, updating, or deleting a room that doesn't exist
+* missing required fields on creation
+* schema validation errors — invalid status, negative capacity, negative price
+* duplicate room numbers, returning a 409
+* the rule that occupied can't exceed capacity on update
+* rejecting updates that contain no valid fields
+* successful create, update, and delete operations with the correct defaults applied
+
+To run it:
+
+
+npm install
+npm test
+
+This should show 18 tests passing.
+
+One important clarification: these tests run entirely in the terminal. They don't touch a real database and won't appear anywhere in the browser. To see the module actually working against real data, you run `npm start` and open `localhost:3000/index.html`. The two are separate forms of evidence — the tests confirm the logic and error handling in isolation, and the browser shows it working end to end.
+
+## Integration with the rest of the project
+
+The frontend's room search and listing page calls `GET /api/rooms` using the same filter and sort parameters described above. Errors are handled through the shared `errorHandler.js` middleware used across the whole app, so a 400 or 404 from this module looks consistent with errors from any other module in the project. The seed data for a room also matches the shape that other modules — bookings, for example — expect when referencing a room by its ID.
+
+## Key Files
+
+The main files for this module are:
+
+
+src/
+├── models/
+│   └── Room.js
+├── routes/
+│   └── room.js
+└── controllers/
+    └── roomController.js
+
+tests/
+├── room.test.js
+└── testApp.js
+
+seed/
+└── seedRooms.js
+
+
