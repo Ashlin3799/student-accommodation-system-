@@ -248,6 +248,10 @@
       }
 
       loadApplications();
+      // Poll for new applications every 5 seconds
+      setInterval(() => {
+        loadApplications();
+      }, 3000);
     </script>
   </body>
 </html>

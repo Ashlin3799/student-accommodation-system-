@@ -141,3 +141,8 @@ function escapeHtml(value) {
 
 // Automatically load applications when page visits
 fetchApplications();
+
+// Automatically poll the server every 3 seconds for new applications
+setInterval(() => {
+  fetchApplications();
+}, 3000);
