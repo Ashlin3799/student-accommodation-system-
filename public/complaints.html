@@ -1,9 +1,7 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -11,163 +9,170 @@
 
     <title>Student Complaints</title>
 
-    <link rel="stylesheet"
-          href="css/style.css">
-
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="/css/admin.css">
-    
 </head>
 
 
 <body>
 
 <header>
-
     <div class="container">
 
         <h1>Student Accommodation Management System</h1>
 
         <nav>
-
-           <a href="/index.html">Home</a>
-
-            <a href="/complaints.html">
-                Complaints
-            </a>
-
+            <a href="/index.html">Home</a>
+            <a href="/complaints.html">Complaints</a>
         </nav>
 
     </div>
-
 </header>
 
 
 <main class="container">
 
+    <!-- ====================================== -->
+    <!-- SUBMIT NEW COMPLAINT -->
+    <!-- ====================================== -->
 
-<section class="card">
+    <section class="card">
 
-    <h2>Report an Accommodation Complaint</h2>
+        <h2>Report an Accommodation Complaint</h2>
 
-    <p>
-        Use this form to report a room or accommodation issue.
-    </p>
+        <p>
+            Use this form to report a room or accommodation issue.
+        </p>
+
+        <div
+            id="message"
+            class="message">
+        </div>
 
 
-    <div
-        id="message"
-        class="message">
-    </div>
+        <form id="complaintForm">
+
+            <div class="form-group">
+
+                <label for="studentId">
+                    Student ID
+                </label>
+
+                <input
+                    type="text"
+                    id="studentId"
+                    name="studentId"
+                    placeholder="Example: S225562551"
+                    required>
+
+            </div>
 
 
-    <form id="complaintForm">
+            <div class="form-group">
+
+                <label for="studentName">
+                    Student Name
+                </label>
+
+                <input
+                    type="text"
+                    id="studentName"
+                    name="studentName"
+                    placeholder="Enter your name"
+                    required>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="description">
+                    Describe your accommodation issue
+                </label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="6"
+                    maxlength="500"
+                    placeholder="Describe the problem..."
+                    required></textarea>
+
+                <small>
+                    Maximum 500 characters
+                </small>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="button">
+
+                Submit Complaint
+
+            </button>
+
+        </form>
+
+    </section>
+
+
+
+    <!-- ====================================== -->
+    <!-- VIEW EXISTING COMPLAINTS -->
+    <!-- ====================================== -->
+
+    <section class="card">
+
+        <h2>My Complaints</h2>
+
+        <p>
+            Enter your Student ID to view your submitted complaints.
+        </p>
 
 
         <div class="form-group">
 
-            <label for="studentId">
+            <label for="complaintSearchStudentId">
                 Student ID
             </label>
 
             <input
                 type="text"
-                id="studentId"
-                name="studentId"
-                placeholder="Example: S225562551"
-                required>
+                id="complaintSearchStudentId"
+                placeholder="Example: S225562551">
 
         </div>
 
-
-        <div class="form-group">
-
-            <label for="studentName">
-                Student Name
-            </label>
-
-            <input
-                type="text"
-                id="studentName"
-                name="studentName"
-                placeholder="Enter your name"
-                required>
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label for="description">
-                Describe your accommodation issue
-            </label>
-
-            <textarea
-                id="description"
-                name="description"
-                rows="6"
-                maxlength="500"
-                placeholder="Describe the problem..."
-                required>
-            </textarea>
-
-            <small>
-                Maximum 500 characters
-            </small>
-
-        </div>
-
-
-        <button
-            type="submit"
-            class="button">
-
-            Submit Complaint
-
-        </button>
-
-
-    </form>
-
-</section>
-
-
-
-<section class="card">
-
-    <div class="section-heading">
-
-        <h2>My Complaints</h2>
 
         <button
             id="loadComplaints"
+            type="button"
             class="button secondary">
 
             Load Complaints
 
         </button>
 
-    </div>
 
+        <div id="complaintsContainer">
 
-    <div id="complaintsContainer">
+            <p>
+                Enter your Student ID and click
+                <strong>Load Complaints</strong>.
+            </p>
 
-        <p>
-            Enter your Student ID above and click
-            <strong>Load Complaints</strong>.
-        </p>
+        </div>
 
-    </div>
-
-</section>
+    </section>
 
 
 </main>
 
 
 <footer>
-
     SIT725 - Applied Software Engineering
-
 </footer>
 
 
