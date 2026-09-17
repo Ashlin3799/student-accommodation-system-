@@ -19,4 +19,10 @@ router.get(
 // Get single complaint
 router.get('/:id', complaintController.getComplaintById);
 
+// Update complaint status
+router.patch(
+  '/:id/status',
+  complaintController.updateComplaintStatus
+);
+
 module.exports = router;

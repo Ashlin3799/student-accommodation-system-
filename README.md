@@ -167,4 +167,109 @@ tests/
 seed/
 └── seedRooms.js
 
+# Complaint Module - Clive
 
+## Overview
+
+The Complaint Module is part of the Student Accommodation Management System developed for SIT725 - Applied Software Engineering.
+
+The module allows students to:
+
+- Submit accommodation-related complaints
+- Enter their Student ID and name
+- Describe an accommodation issue
+- View previously submitted complaints
+- View the current status of each complaint
+
+The module uses a frontend built with HTML, CSS and JavaScript, a Node.js/Express backend, and MongoDB with Mongoose for persistent data storage.
+
+---
+
+## Main Features
+
+### Complaint Submission
+
+Students can submit a complaint by entering:
+
+- Student ID
+- Student Name
+- Complaint Description
+
+After successful submission, the complaint is stored in MongoDB.
+
+---
+
+### Complaint History
+
+Students can enter their Student ID and load complaints previously submitted under that ID.
+
+Each complaint displays:
+
+- Complaint description
+- Submission date
+- Current complaint status
+
+---
+
+## Complaint Status
+
+Each new complaint is automatically given the status:
+
+`Pending`
+
+The complaint model supports the following status values:
+
+- Pending
+- In Progress
+- Resolved
+
+---
+
+## Validation
+
+The Complaint Module includes validation on both the frontend and backend.
+
+Validation rules include:
+
+- Student ID is required
+- Student Name is required
+- Complaint Description is required
+- Complaint description must contain at least 5 characters
+- Complaint description cannot exceed 500 characters
+
+Invalid data is rejected before being stored in the database.
+
+---
+
+## Complaint Data Model
+
+The Complaint model contains the following fields:
+
+```text
+studentId
+studentName
+description
+status
+createdAt
+updatedAt
+# Complaint Module - Clive
+
+The Complaint Module allows students to submit accommodation
+complaints and view their complaint history.
+
+### Technologies
+
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- HTML
+- CSS
+- JavaScript
+
+## Running the Project
+
+Install dependencies:
+
+```bash
+npm install

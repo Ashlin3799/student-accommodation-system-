@@ -132,3 +132,70 @@ exports.getComplaintById = async (req, res, next) => {
     next(error);
   }
 };
+// ----------------------------------------------------
+// PATCH - Update complaint status
+// ----------------------------------------------------
+exports.updateComplaintStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      'Pending',
+      'In Progress',
+      'Resolved'
+    ];
+
+    // Check whether status was provided
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: 'Complaint status is required'
+      });
+    }
+
+    // Validate status
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Status must be Pending, In Progress, or Resolved'
+      });
+    }
+
+    // Find complaint and update it
+    const updatedComplaint =
+      await Complaint.findByIdAndUpdate(
+        req.params.id,
+        {
+          status: status
+        },
+        {
+          new: true,
+          runValidators: true
+        }
+      );
+
+    // Complaint does not exist
+    if (!updatedComplaint) {
+      return res.status(404).json({
+        success: false,
+        message: 'Complaint not found'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Complaint status updated successfully',
+      data: updatedComplaint
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to update complaint status',
+      error: error.message
+    });
+  }
+};
