@@ -4,33 +4,88 @@
 <head>
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Student Complaints</title>
 
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="/css/admin.css">
+    <!-- Main project styles -->
+    <link
+        rel="stylesheet"
+        href="/css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/admin.css"
+    >
+
 </head>
 
 
 <body>
 
+
+<!-- ====================================== -->
+<!-- HEADER -->
+<!-- ====================================== -->
+
 <header>
+
     <div class="container">
 
-        <h1>Student Accommodation Management System</h1>
+        <h1>
+            Student Accommodation Management System
+        </h1>
 
         <nav>
-            <a href="/index.html">Home</a>
-            <a href="/complaints.html">Complaints</a>
+
+            <a href="/index.html">
+                Home
+            </a>
+
+            <a
+                href="/complaints.html"
+                class="active"
+            >
+                Complaints
+            </a>
+
         </nav>
 
     </div>
+
 </header>
 
 
+
+<!-- ====================================== -->
+<!-- MAIN CONTENT -->
+<!-- ====================================== -->
+
 <main class="container">
+
+
+    <!-- ====================================== -->
+    <!-- PAGE HEADING -->
+    <!-- ====================================== -->
+
+    <section class="card">
+
+        <h2>
+            Student Complaint Portal
+        </h2>
+
+        <p>
+            Report accommodation problems and check the
+            status of complaints you have already submitted.
+        </p>
+
+    </section>
+
+
 
     <!-- ====================================== -->
     <!-- SUBMIT NEW COMPLAINT -->
@@ -38,19 +93,31 @@
 
     <section class="card">
 
-        <h2>Report an Accommodation Complaint</h2>
+        <h2>
+            Report an Accommodation Complaint
+        </h2>
 
         <p>
-            Use this form to report a room or accommodation issue.
+            Please provide your student details and describe
+            the room or accommodation problem.
         </p>
+
+
+        <!-- Success / error message -->
 
         <div
             id="message"
-            class="message">
+            class="message"
+            role="alert"
+        >
         </div>
 
 
+
         <form id="complaintForm">
+
+
+            <!-- Student ID -->
 
             <div class="form-group">
 
@@ -63,10 +130,15 @@
                     id="studentId"
                     name="studentId"
                     placeholder="Example: S225562551"
-                    required>
+                    autocomplete="off"
+                    required
+                >
 
             </div>
 
+
+
+            <!-- Student Name -->
 
             <div class="form-group">
 
@@ -78,11 +150,16 @@
                     type="text"
                     id="studentName"
                     name="studentName"
-                    placeholder="Enter your name"
-                    required>
+                    placeholder="Enter your full name"
+                    autocomplete="name"
+                    required
+                >
 
             </div>
 
+
+
+            <!-- Complaint Description -->
 
             <div class="form-group">
 
@@ -95,8 +172,9 @@
                     name="description"
                     rows="6"
                     maxlength="500"
-                    placeholder="Describe the problem..."
-                    required></textarea>
+                    placeholder="Example: The light in my room is not working properly."
+                    required
+                ></textarea>
 
                 <small>
                     Maximum 500 characters
@@ -105,13 +183,17 @@
             </div>
 
 
+
+            <!-- Submit Button -->
+
             <button
                 type="submit"
-                class="button">
-
+                class="button"
+                id="submitComplaintButton"
+            >
                 Submit Complaint
-
             </button>
+
 
         </form>
 
@@ -125,12 +207,18 @@
 
     <section class="card">
 
-        <h2>My Complaints</h2>
+        <h2>
+            My Complaints
+        </h2>
 
         <p>
-            Enter your Student ID to view your submitted complaints.
+            Enter your Student ID to view your submitted
+            complaints and their current status.
         </p>
 
+
+
+        <!-- Search Student ID -->
 
         <div class="form-group">
 
@@ -141,26 +229,38 @@
             <input
                 type="text"
                 id="complaintSearchStudentId"
-                placeholder="Example: S225562551">
+                name="complaintSearchStudentId"
+                placeholder="Example: S225562551"
+                autocomplete="off"
+            >
 
         </div>
 
 
+
+        <!-- Load Complaints Button -->
+
         <button
             id="loadComplaints"
             type="button"
-            class="button secondary">
-
+            class="button secondary"
+        >
             Load Complaints
-
         </button>
 
 
-        <div id="complaintsContainer">
+
+        <!-- Complaint Results -->
+
+        <div
+            id="complaintsContainer"
+            aria-live="polite"
+        >
 
             <p>
                 Enter your Student ID and click
-                <strong>Load Complaints</strong>.
+                <strong>Load Complaints</strong>
+                to view your complaint history.
             </p>
 
         </div>
@@ -171,12 +271,31 @@
 </main>
 
 
+
+<!-- ====================================== -->
+<!-- FOOTER -->
+<!-- ====================================== -->
+
 <footer>
-    SIT725 - Applied Software Engineering
+
+    <p>
+        SIT725 - Applied Software Engineering
+    </p>
+
+    <p>
+        Student Accommodation Management System
+    </p>
+
 </footer>
 
 
-<script src="js/complaints.js"></script>
+
+<!-- ====================================== -->
+<!-- JAVASCRIPT -->
+<!-- ====================================== -->
+
+<script src="/js/complaints.js"></script>
+
 
 </body>
 

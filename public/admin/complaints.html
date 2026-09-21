@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Complaint Management - Admin</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/admin.css"
+    >
+
+    <style>
+
+        .complaints-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .complaints-table th,
+        .complaints-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .complaints-table th {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-progress {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .status-resolved {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .message {
+            margin-top: 15px;
+            color: #64748b;
+        }
+
+        .description-cell {
+            max-width: 350px;
+            word-wrap: break-word;
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+<div class="dashboard-container">
+
+
+    <!-- ============================== -->
+    <!-- ADMIN SIDEBAR -->
+    <!-- ============================== -->
+
+    <aside class="sidebar">
+
+        <div>
+
+            <h2>Admin Portal</h2>
+
+            <p id="adminName">
+                Administrator
+            </p>
+
+
+            <ul>
+
+                <li>
+                    <a href="/admin/dashboard.html">
+                        Dashboard
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/index.html">
+                        Manage Rooms
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/admin/applications.html">
+                        Room Applications
+                    </a>
+                </li>
+
+                <li>
+                    <a
+                        href="/admin/complaints.html"
+                        class="active"
+                    >
+                        Complaints
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="logout-btn"
+            id="logoutButton"
+        >
+            Logout
+        </button>
+
+    </aside>
+
+
+
+    <!-- ============================== -->
+    <!-- MAIN CONTENT -->
+    <!-- ============================== -->
+
+    <main class="main-content">
+
+
+        <div class="dashboard-header">
+
+            <div>
+
+                <h1>
+                    Complaint Management
+                </h1>
+
+                <p>
+                    View accommodation complaints submitted by students.
+                </p>
+
+            </div>
+
+
+            <button
+                id="refreshButton"
+                class="dashboard-refresh"
+                type="button"
+            >
+                Refresh
+            </button>
+
+        </div>
+
+
+
+        <p
+            id="complaintMessage"
+            class="message"
+        >
+            Loading complaints...
+        </p>
+
+
+
+        <table class="complaints-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student ID
+                    </th>
+
+                    <th>
+                        Student Name
+                    </th>
+
+                    <th>
+                        Complaint
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Submitted
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="complaintsBody">
+
+            </tbody>
+
+        </table>
+
+
+    </main>
+
+</div>
+
+
+<script src="/js/adminComplaints.js"></script>
+
+</body>
+
+</html>
