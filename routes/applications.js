@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Application = require('../models/Application');
+const { adjustRoomOccupancy } = require('../src/controllers/roomController');
 
 // Submit a new application
 router.post('/', async (req, res, next) => {
@@ -66,14 +67,24 @@ router.patch('/:id', async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid status value.' });
     }
 
+    const existing = await Application.findById(req.params.id);
+
+    if (!existing) {
+      return res.status(404).json({ success: false, message: 'Application not found.' });
+    }
+
+    const previousStatus = existing.status;
+
     const updated = await Application.findByIdAndUpdate(
       req.params.id,
       { status, updatedAt: Date.now() },
       { new: true }
     );
 
-    if (!updated) {
-      return res.status(404).json({ success: false, message: 'Application not found.' });
+    if (previousStatus !== 'Approved' && status === 'Approved') {
+      await adjustRoomOccupancy(updated.roomId, 1);
+    } else if (previousStatus === 'Approved' && status !== 'Approved') {
+      await adjustRoomOccupancy(updated.roomId, -1);
     }
 
     res.json(updated);
