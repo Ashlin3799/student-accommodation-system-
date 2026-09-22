@@ -13,6 +13,22 @@ const logoutButton =
 const adminName =
     document.getElementById('adminName');
 
+const complaintSearch =
+    document.getElementById('complaintSearch');
+
+const statusFilter =
+    document.getElementById('statusFilter');
+
+const clearFilterButton =
+    document.getElementById('clearFilterButton');
+
+
+// ----------------------------------------------------
+// STORE ALL COMPLAINTS
+// ----------------------------------------------------
+
+let allComplaints = [];
+
 
 // ----------------------------------------------------
 // CHECK ADMIN LOGIN
@@ -75,9 +91,6 @@ async function loadComplaints() {
     complaintMessage.textContent =
         'Loading complaints...';
 
-    complaintsBody.innerHTML =
-        '';
-
 
     try {
 
@@ -99,9 +112,14 @@ async function loadComplaints() {
         }
 
 
-        displayComplaints(
-            result.data
-        );
+        allComplaints =
+            Array.isArray(result.data)
+                ? result.data
+                : [];
+
+
+        // Apply currently selected filters
+        applyFilters();
 
     }
 
@@ -127,6 +145,105 @@ async function loadComplaints() {
 
 
 // ----------------------------------------------------
+// APPLY SEARCH AND STATUS FILTER
+// ----------------------------------------------------
+
+function applyFilters() {
+
+    const searchValue =
+        complaintSearch
+            .value
+            .trim()
+            .toLowerCase();
+
+
+    const selectedStatus =
+        statusFilter.value;
+
+
+    const filteredComplaints =
+        allComplaints.filter(
+            (complaint) => {
+
+
+                const studentId =
+                    String(
+                        complaint.studentId || ''
+                    ).toLowerCase();
+
+
+                const studentName =
+                    String(
+                        complaint.studentName || ''
+                    ).toLowerCase();
+
+
+                const description =
+                    String(
+                        complaint.description || ''
+                    ).toLowerCase();
+
+
+                const status =
+                    String(
+                        complaint.status || 'Pending'
+                    );
+
+
+                // ------------------------------------
+                // Search match
+                // ------------------------------------
+
+                const matchesSearch =
+
+                    studentId.includes(
+                        searchValue
+                    )
+
+                    ||
+
+                    studentName.includes(
+                        searchValue
+                    )
+
+                    ||
+
+                    description.includes(
+                        searchValue
+                    );
+
+
+                // ------------------------------------
+                // Status match
+                // ------------------------------------
+
+                const matchesStatus =
+
+                    selectedStatus === 'All'
+
+                    ||
+
+                    status === selectedStatus;
+
+
+                return (
+                    matchesSearch &&
+                    matchesStatus
+                );
+
+            }
+        );
+
+
+    displayComplaints(
+        filteredComplaints
+    );
+
+}
+
+
+
+// ----------------------------------------------------
 // DISPLAY COMPLAINTS
 // ----------------------------------------------------
 
@@ -136,13 +253,31 @@ function displayComplaints(complaints) {
         '';
 
 
+    // ------------------------------------------------
+    // No complaints in database
+    // ------------------------------------------------
+
+    if (allComplaints.length === 0) {
+
+        complaintMessage.textContent =
+            'No complaints have been submitted yet.';
+
+        return;
+
+    }
+
+
+    // ------------------------------------------------
+    // No matching filtered results
+    // ------------------------------------------------
+
     if (
         !Array.isArray(complaints) ||
         complaints.length === 0
     ) {
 
         complaintMessage.textContent =
-            'No complaints have been submitted yet.';
+            'No complaints match your search or filter.';
 
         return;
 
@@ -201,20 +336,16 @@ function displayComplaints(complaints) {
             row.innerHTML = `
 
                 <td>
-
                     ${escapeHtml(
                         complaint.studentId
                     )}
-
                 </td>
 
 
                 <td>
-
                     ${escapeHtml(
                         complaint.studentName
                     )}
-
                 </td>
 
 
@@ -439,18 +570,14 @@ async function updateComplaintStatus(
 
 function getStatusClass(status) {
 
-    if (
-        status === 'Resolved'
-    ) {
+    if (status === 'Resolved') {
 
         return 'status-resolved';
 
     }
 
 
-    if (
-        status === 'In Progress'
-    ) {
+    if (status === 'In Progress') {
 
         return 'status-progress';
 
@@ -482,6 +609,59 @@ function escapeHtml(value) {
     return div.innerHTML;
 
 }
+
+
+
+// ----------------------------------------------------
+// SEARCH WHILE TYPING
+// ----------------------------------------------------
+
+complaintSearch.addEventListener(
+    'input',
+    function () {
+
+        applyFilters();
+
+    }
+);
+
+
+
+// ----------------------------------------------------
+// FILTER BY STATUS
+// ----------------------------------------------------
+
+statusFilter.addEventListener(
+    'change',
+    function () {
+
+        applyFilters();
+
+    }
+);
+
+
+
+// ----------------------------------------------------
+// CLEAR FILTERS
+// ----------------------------------------------------
+
+clearFilterButton.addEventListener(
+    'click',
+    function () {
+
+        complaintSearch.value =
+            '';
+
+
+        statusFilter.value =
+            'All';
+
+
+        applyFilters();
+
+    }
+);
 
 
 

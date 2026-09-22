@@ -20,6 +20,10 @@
 
     <style>
 
+        /* ===================================== */
+        /* COMPLAINT TABLE */
+        /* ===================================== */
+
         .complaints-table {
             width: 100%;
             border-collapse: collapse;
@@ -28,6 +32,7 @@
             overflow: hidden;
             margin-top: 15px;
         }
+
 
         .complaints-table th,
         .complaints-table td {
@@ -38,17 +43,80 @@
             vertical-align: middle;
         }
 
+
         .complaints-table th {
             background: #f8fafc;
             color: #334155;
         }
+
 
         .complaints-table tr:hover {
             background: #f8fafc;
         }
 
 
+
+        /* ===================================== */
+        /* FILTER AREA */
+        /* ===================================== */
+
+        .complaint-filters {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+
+        .complaint-filters input {
+            flex: 1;
+            min-width: 260px;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+
+
+        .complaint-filters input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+
+        .complaint-filters select {
+            min-width: 170px;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+
+        .clear-filter-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #64748b;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+
+        .clear-filter-btn:hover {
+            background: #475569;
+        }
+
+
+
+        /* ===================================== */
         /* STATUS */
+        /* ===================================== */
 
         .status {
             display: inline-block;
@@ -58,15 +126,18 @@
             font-weight: bold;
         }
 
+
         .status-pending {
             background: #fef3c7;
             color: #d97706;
         }
 
+
         .status-progress {
             background: #dbeafe;
             color: #2563eb;
         }
+
 
         .status-resolved {
             background: #dcfce7;
@@ -74,7 +145,10 @@
         }
 
 
+
+        /* ===================================== */
         /* DESCRIPTION */
+        /* ===================================== */
 
         .description-cell {
             max-width: 300px;
@@ -82,7 +156,10 @@
         }
 
 
+
+        /* ===================================== */
         /* STATUS SELECT */
+        /* ===================================== */
 
         .status-select {
             padding: 7px 8px;
@@ -93,7 +170,10 @@
         }
 
 
+
+        /* ===================================== */
         /* UPDATE BUTTON */
+        /* ===================================== */
 
         .update-btn {
             padding: 7px 12px;
@@ -105,9 +185,11 @@
             font-size: 13px;
         }
 
+
         .update-btn:hover {
             background: #1d4ed8;
         }
+
 
         .update-btn:disabled {
             opacity: 0.6;
@@ -115,7 +197,10 @@
         }
 
 
+
+        /* ===================================== */
         /* MESSAGE */
+        /* ===================================== */
 
         .message {
             margin-top: 15px;
@@ -123,7 +208,10 @@
         }
 
 
+
+        /* ===================================== */
         /* BACK LINK */
+        /* ===================================== */
 
         .back-link {
             display: inline-block;
@@ -133,8 +221,20 @@
             font-weight: 500;
         }
 
+
         .back-link:hover {
             text-decoration: underline;
+        }
+
+
+
+        /* ===================================== */
+        /* RESPONSIVE TABLE */
+        /* ===================================== */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
         }
 
     </style>
@@ -160,6 +260,7 @@
                 Admin Portal
             </h2>
 
+
             <p id="adminName">
                 Administrator
             </p>
@@ -168,30 +269,41 @@
             <ul>
 
                 <li>
+
                     <a href="/admin/dashboard.html">
                         Dashboard
                     </a>
+
                 </li>
 
+
                 <li>
+
                     <a href="/index.html">
                         Manage Rooms
                     </a>
+
                 </li>
 
+
                 <li>
+
                     <a href="/admin/applications.html">
                         Room Applications
                     </a>
+
                 </li>
 
+
                 <li>
+
                     <a
                         href="/admin/complaints.html"
                         class="active"
                     >
                         Complaints
                     </a>
+
                 </li>
 
             </ul>
@@ -229,7 +341,9 @@
         </a>
 
 
+
         <div class="dashboard-header">
+
 
             <div>
 
@@ -238,7 +352,8 @@
                 </h1>
 
                 <p>
-                    View student complaints and update their status.
+                    View student complaints, search records,
+                    filter by status and update complaint progress.
                 </p>
 
             </div>
@@ -252,8 +367,63 @@
                 Refresh
             </button>
 
+
         </div>
 
+
+
+        <!-- ===================================== -->
+        <!-- SEARCH AND FILTER -->
+        <!-- ===================================== -->
+
+        <div class="complaint-filters">
+
+
+            <input
+                type="text"
+                id="complaintSearch"
+                placeholder="Search by Student ID, name or complaint..."
+                autocomplete="off"
+            >
+
+
+            <select id="statusFilter">
+
+                <option value="All">
+                    All Statuses
+                </option>
+
+                <option value="Pending">
+                    Pending
+                </option>
+
+                <option value="In Progress">
+                    In Progress
+                </option>
+
+                <option value="Resolved">
+                    Resolved
+                </option>
+
+            </select>
+
+
+            <button
+                type="button"
+                id="clearFilterButton"
+                class="clear-filter-btn"
+            >
+                Clear
+            </button>
+
+
+        </div>
+
+
+
+        <!-- ===================================== -->
+        <!-- MESSAGE -->
+        <!-- ===================================== -->
 
         <p
             id="complaintMessage"
@@ -268,51 +438,61 @@
         <!-- COMPLAINT TABLE -->
         <!-- ===================================== -->
 
-        <table class="complaints-table">
-
-            <thead>
-
-                <tr>
-
-                    <th>
-                        Student ID
-                    </th>
-
-                    <th>
-                        Student Name
-                    </th>
-
-                    <th>
-                        Complaint
-                    </th>
-
-                    <th>
-                        Status
-                    </th>
-
-                    <th>
-                        Submitted
-                    </th>
-
-                    <th>
-                        Actions
-                    </th>
-
-                </tr>
-
-            </thead>
+        <div class="table-wrapper">
 
 
-            <tbody id="complaintsBody">
+            <table class="complaints-table">
 
-            </tbody>
 
-        </table>
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Student ID
+                        </th>
+
+                        <th>
+                            Student Name
+                        </th>
+
+                        <th>
+                            Complaint
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Submitted
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="complaintsBody">
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
 
 
     </main>
 
+
 </div>
+
 
 
 <script src="/js/adminComplaints.js"></script>
