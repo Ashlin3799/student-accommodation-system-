@@ -1,201 +1,505 @@
 const Complaint = require('../models/Complaint');
 
+
 // ----------------------------------------------------
 // POST - Submit a new complaint
 // ----------------------------------------------------
-exports.createComplaint = async (req, res, next) => {
-  try {
-    const { studentId, studentName, description } = req.body;
 
-    // Input validation
-    if (!studentId || studentId.trim() === '') {
+exports.createComplaint = async (req, res, next) => {
+
+  try {
+
+    const {
+      studentId,
+      studentName,
+      description
+    } = req.body;
+
+
+    // ------------------------------------------------
+    // Validate Student ID
+    // ------------------------------------------------
+
+    if (
+      !studentId ||
+      studentId.trim() === ''
+    ) {
+
       return res.status(400).json({
         success: false,
         message: 'Student ID is required'
       });
+
     }
 
-    if (!studentName || studentName.trim() === '') {
+
+    // ------------------------------------------------
+    // Validate Student Name
+    // ------------------------------------------------
+
+    if (
+      !studentName ||
+      studentName.trim() === ''
+    ) {
+
       return res.status(400).json({
         success: false,
         message: 'Student name is required'
       });
+
     }
 
-    if (!description || description.trim() === '') {
+
+    // ------------------------------------------------
+    // Validate Complaint Description
+    // ------------------------------------------------
+
+    if (
+      !description ||
+      description.trim() === ''
+    ) {
+
       return res.status(400).json({
         success: false,
         message: 'Complaint description is required'
       });
+
     }
 
-    if (description.trim().length < 5) {
+
+    if (
+      description.trim().length < 5
+    ) {
+
       return res.status(400).json({
         success: false,
-        message: 'Complaint must contain at least 5 characters'
+        message:
+          'Complaint must contain at least 5 characters'
       });
+
     }
 
-    if (description.trim().length > 500) {
+
+    if (
+      description.trim().length > 500
+    ) {
+
       return res.status(400).json({
         success: false,
-        message: 'Complaint cannot exceed 500 characters'
+        message:
+          'Complaint cannot exceed 500 characters'
       });
+
     }
 
-    const complaint = new Complaint({
-      studentId: studentId.trim(),
-      studentName: studentName.trim(),
-      description: description.trim()
-    });
 
-    const savedComplaint = await complaint.save();
+    // ------------------------------------------------
+    // Create Complaint
+    // ------------------------------------------------
 
-    res.status(201).json({
+    const complaint =
+      new Complaint({
+
+        studentId:
+          studentId.trim(),
+
+        studentName:
+          studentName.trim(),
+
+        description:
+          description.trim(),
+
+        status:
+          'Pending'
+
+      });
+
+
+    const savedComplaint =
+      await complaint.save();
+
+
+    // ------------------------------------------------
+    // Success Response
+    // ------------------------------------------------
+
+    return res.status(201).json({
+
       success: true,
-      message: 'Complaint submitted successfully',
-      data: savedComplaint
+
+      message:
+        'Complaint submitted successfully',
+
+      data:
+        savedComplaint
+
     });
-  } catch (error) {
-    next(error);
+
   }
+
+  catch (error) {
+
+    next(error);
+
+  }
+
 };
+
+
 
 // ----------------------------------------------------
 // GET - Get all complaints
 // ----------------------------------------------------
-exports.getAllComplaints = async (req, res, next) => {
+
+exports.getAllComplaints = async (
+  req,
+  res,
+  next
+) => {
+
   try {
-    const complaints = await Complaint.find().sort({
-      createdAt: -1
+
+    const complaints =
+      await Complaint
+        .find()
+        .sort({
+          createdAt: -1
+        });
+
+
+    return res.status(200).json({
+
+      success: true,
+
+      count:
+        complaints.length,
+
+      data:
+        complaints
+
     });
 
-    res.status(200).json({
-      success: true,
-      count: complaints.length,
-      data: complaints
-    });
-  } catch (error) {
-    next(error);
   }
+
+  catch (error) {
+
+    next(error);
+
+  }
+
 };
+
+
 
 // ----------------------------------------------------
 // GET - Get complaints belonging to one student
 // ----------------------------------------------------
-exports.getStudentComplaints = async (req, res, next) => {
-  try {
-    const { studentId } = req.params;
 
-    if (!studentId) {
+exports.getStudentComplaints = async (
+  req,
+  res,
+  next
+) => {
+
+  try {
+
+    const {
+      studentId
+    } = req.params;
+
+
+    // ------------------------------------------------
+    // Validate Student ID
+    // ------------------------------------------------
+
+    if (
+      !studentId ||
+      studentId.trim() === ''
+    ) {
+
       return res.status(400).json({
+
         success: false,
-        message: 'Student ID is required'
+
+        message:
+          'Student ID is required'
+
       });
+
     }
 
-    const complaints = await Complaint.find({
-      studentId: studentId
-    }).sort({
-      createdAt: -1
+
+    // ------------------------------------------------
+    // Find Student Complaints
+    // ------------------------------------------------
+
+    const complaints =
+      await Complaint
+        .find({
+          studentId:
+            studentId.trim()
+        })
+        .sort({
+          createdAt: -1
+        });
+
+
+    return res.status(200).json({
+
+      success: true,
+
+      count:
+        complaints.length,
+
+      data:
+        complaints
+
     });
 
-    res.status(200).json({
-      success: true,
-      count: complaints.length,
-      data: complaints
-    });
-  } catch (error) {
-    next(error);
   }
+
+  catch (error) {
+
+    next(error);
+
+  }
+
 };
 
+
+
 // ----------------------------------------------------
-// GET - Get a single complaint
+// GET - Get a single complaint by ID
 // ----------------------------------------------------
-exports.getComplaintById = async (req, res, next) => {
+
+exports.getComplaintById = async (
+  req,
+  res,
+  next
+) => {
+
   try {
-    const complaint = await Complaint.findById(req.params.id);
+
+    const complaint =
+      await Complaint.findById(
+        req.params.id
+      );
+
+
+    // ------------------------------------------------
+    // Complaint Not Found
+    // ------------------------------------------------
 
     if (!complaint) {
+
       return res.status(404).json({
+
         success: false,
-        message: 'Complaint not found'
+
+        message:
+          'Complaint not found'
+
       });
+
     }
 
-    res.status(200).json({
+
+    return res.status(200).json({
+
       success: true,
-      data: complaint
+
+      data:
+        complaint
+
     });
-  } catch (error) {
-    next(error);
+
   }
+
+  catch (error) {
+
+
+    // ------------------------------------------------
+    // Invalid MongoDB ID
+    // ------------------------------------------------
+
+    if (
+      error.name === 'CastError'
+    ) {
+
+      return res.status(400).json({
+
+        success: false,
+
+        message:
+          'Invalid complaint ID'
+
+      });
+
+    }
+
+
+    next(error);
+
+  }
+
 };
+
+
+
 // ----------------------------------------------------
 // PATCH - Update complaint status
 // ----------------------------------------------------
-exports.updateComplaintStatus = async (req, res, next) => {
+
+exports.updateComplaintStatus = async (
+  req,
+  res,
+  next
+) => {
+
   try {
-    const { status } = req.body;
+
+    const {
+      status
+    } = req.body;
+
 
     const allowedStatuses = [
+
       'Pending',
+
       'In Progress',
+
       'Resolved'
+
     ];
 
-    // Check whether status was provided
-    if (!status) {
+
+    // ------------------------------------------------
+    // Status Required
+    // ------------------------------------------------
+
+    if (
+      !status ||
+      status.trim() === ''
+    ) {
+
       return res.status(400).json({
+
         success: false,
-        message: 'Complaint status is required'
+
+        message:
+          'Complaint status is required'
+
       });
+
     }
 
-    // Validate status
-    if (!allowedStatuses.includes(status)) {
+
+    // ------------------------------------------------
+    // Validate Status
+    // ------------------------------------------------
+
+    if (
+      !allowedStatuses.includes(
+        status
+      )
+    ) {
+
       return res.status(400).json({
+
         success: false,
+
         message:
           'Status must be Pending, In Progress, or Resolved'
+
       });
+
     }
 
-    // Find complaint and update it
+
+    // ------------------------------------------------
+    // Find Complaint and Update Status
+    // ------------------------------------------------
+
     const updatedComplaint =
       await Complaint.findByIdAndUpdate(
+
         req.params.id,
+
         {
-          status: status
+          status:
+            status
         },
+
         {
           new: true,
           runValidators: true
         }
+
       );
 
-    // Complaint does not exist
+
+    // ------------------------------------------------
+    // Complaint Not Found
+    // ------------------------------------------------
+
     if (!updatedComplaint) {
+
       return res.status(404).json({
+
         success: false,
-        message: 'Complaint not found'
+
+        message:
+          'Complaint not found'
+
       });
+
     }
 
+
+    // ------------------------------------------------
+    // Success
+    // ------------------------------------------------
+
     return res.status(200).json({
+
       success: true,
-      message: 'Complaint status updated successfully',
-      data: updatedComplaint
+
+      message:
+        'Complaint status updated successfully',
+
+      data:
+        updatedComplaint
+
     });
 
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      success: false,
-      message: 'Unable to update complaint status',
-      error: error.message
-    });
   }
+
+  catch (error) {
+
+
+    // ------------------------------------------------
+    // Invalid MongoDB ID
+    // ------------------------------------------------
+
+    if (
+      error.name === 'CastError'
+    ) {
+
+      return res.status(400).json({
+
+        success: false,
+
+        message:
+          'Invalid complaint ID'
+
+      });
+
+    }
+
+
+    next(error);
+
+  }
+
 };
