@@ -227,6 +227,31 @@ exports.updateRoom = async (req, res, next) => {
   }
 };
 
+// Adjust a room's occupied count by `delta` (+1 when an application is
+// approved, -1 when a previously-approved application is rejected/reset).
+// Clamped to [0, capacity] so it can never go negative or over-book a
+// room. The Room schema's pre('save') hook takes care of flipping
+// `status` between 'available' and 'occupied' as occupied changes.
+// Used by the applications route — never called directly from a client.
+exports.adjustRoomOccupancy = async (roomId, delta) => {
+  if (!roomId) return null;
+
+  let room;
+  try {
+    room = await Room.findById(roomId);
+  } catch (err) {
+    return null; // invalid/unknown room id — nothing to sync
+  }
+
+  if (!room) return null;
+
+  const next = room.occupied + delta;
+  room.occupied = Math.max(0, Math.min(next, room.capacity));
+
+  await room.save();
+  return room;
+};
+
 // DELETE /api/rooms/:id
 exports.deleteRoom = async (req, res, next) => {
   try {
