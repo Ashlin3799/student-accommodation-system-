@@ -1,87 +1,88 @@
 const complaintsBody =
-    document.getElementById("complaintsBody");
+    document.getElementById('complaintsBody');
 
 const complaintMessage =
-    document.getElementById("complaintMessage");
+    document.getElementById('complaintMessage');
 
 const refreshButton =
-    document.getElementById("refreshButton");
+    document.getElementById('refreshButton');
 
 const logoutButton =
-    document.getElementById("logoutButton");
+    document.getElementById('logoutButton');
 
 const adminName =
-    document.getElementById("adminName");
+    document.getElementById('adminName');
 
 
 // ----------------------------------------------------
-// Check admin login
+// CHECK ADMIN LOGIN
 // ----------------------------------------------------
 
 const token =
-    localStorage.getItem("token");
+    localStorage.getItem('token');
 
 const userData =
-    localStorage.getItem("user");
+    localStorage.getItem('user');
 
 
 if (!token || !userData) {
 
-    window.location.href = "/";
+    window.location.href = '/';
 
 }
+else {
+
+    try {
+
+        const user =
+            JSON.parse(userData);
 
 
-try {
+        if (user.role !== 'admin') {
 
-    const user =
-        JSON.parse(userData);
+            window.location.href =
+                '/student/dashboard.html';
 
+        }
+        else if (user.name) {
 
-    if (user.role !== "admin") {
+            adminName.textContent =
+                user.name;
 
-        window.location.href =
-            "/student/dashboard.html";
+        }
 
     }
+    catch (error) {
 
+        localStorage.removeItem('token');
 
-    if (user.name) {
+        localStorage.removeItem('user');
 
-        adminName.textContent =
-            user.name;
+        window.location.href = '/';
 
     }
-
-}
-catch (error) {
-
-    localStorage.removeItem("token");
-
-    localStorage.removeItem("user");
-
-    window.location.href = "/";
 
 }
 
 
 
 // ----------------------------------------------------
-// Load all complaints
+// LOAD ALL COMPLAINTS
 // ----------------------------------------------------
 
 async function loadComplaints() {
 
     complaintMessage.textContent =
-        "Loading complaints...";
+        'Loading complaints...';
 
-    complaintsBody.innerHTML = "";
+    complaintsBody.innerHTML =
+        '';
 
 
     try {
 
         const response =
-            await fetch("/api/complaints");
+            await fetch('/api/complaints');
 
 
         const result =
@@ -90,24 +91,34 @@ async function loadComplaints() {
 
         if (!response.ok) {
 
-            complaintMessage.textContent =
+            throw new Error(
                 result.message ||
-                "Unable to load complaints.";
-
-            return;
+                'Unable to load complaints.'
+            );
 
         }
 
 
-        displayComplaints(result.data);
+        displayComplaints(
+            result.data
+        );
 
     }
+
     catch (error) {
 
-        console.error(error);
+        console.error(
+            'Complaint loading error:',
+            error
+        );
+
 
         complaintMessage.textContent =
-            "Unable to connect to the server.";
+            error.message;
+
+
+        complaintsBody.innerHTML =
+            '';
 
     }
 
@@ -116,18 +127,22 @@ async function loadComplaints() {
 
 
 // ----------------------------------------------------
-// Display complaints
+// DISPLAY COMPLAINTS
 // ----------------------------------------------------
 
 function displayComplaints(complaints) {
 
-    complaintsBody.innerHTML = "";
+    complaintsBody.innerHTML =
+        '';
 
 
-    if (!complaints || complaints.length === 0) {
+    if (
+        !Array.isArray(complaints) ||
+        complaints.length === 0
+    ) {
 
         complaintMessage.textContent =
-            "No complaints have been submitted.";
+            'No complaints have been submitted yet.';
 
         return;
 
@@ -135,99 +150,334 @@ function displayComplaints(complaints) {
 
 
     complaintMessage.textContent =
-        `${complaints.length} complaint(s) found.`;
+        `${complaints.length} complaint${
+            complaints.length === 1
+                ? ''
+                : 's'
+        } found.`;
 
 
-    complaints.forEach((complaint) => {
 
-        const row =
-            document.createElement("tr");
-
-
-        const date =
-            new Date(
-                complaint.createdAt
-            ).toLocaleString();
+    complaints.forEach(
+        (complaint) => {
 
 
-        row.innerHTML = `
-
-            <td>
-                ${escapeHtml(complaint.studentId)}
-            </td>
-
-            <td>
-                ${escapeHtml(complaint.studentName)}
-            </td>
-
-            <td class="description-cell">
-                ${escapeHtml(complaint.description)}
-            </td>
-
-            <td>
-
-                <span
-                    class="status ${getStatusClass(complaint.status)}"
-                >
-
-                    ${escapeHtml(complaint.status)}
-
-                </span>
-
-            </td>
-
-            <td>
-                ${escapeHtml(date)}
-            </td>
-
-        `;
+            const row =
+                document.createElement('tr');
 
 
-        complaintsBody.appendChild(row);
+            const status =
+                complaint.status ||
+                'Pending';
 
-    });
+
+            let submittedDate =
+                'N/A';
+
+
+            if (complaint.createdAt) {
+
+                const date =
+                    new Date(
+                        complaint.createdAt
+                    );
+
+
+                if (
+                    !Number.isNaN(
+                        date.getTime()
+                    )
+                ) {
+
+                    submittedDate =
+                        date.toLocaleString();
+
+                }
+
+            }
+
+
+
+            row.innerHTML = `
+
+                <td>
+
+                    ${escapeHtml(
+                        complaint.studentId
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHtml(
+                        complaint.studentName
+                    )}
+
+                </td>
+
+
+                <td class="description-cell">
+
+                    ${escapeHtml(
+                        complaint.description
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="status ${getStatusClass(status)}"
+                    >
+
+                        ${escapeHtml(status)}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHtml(
+                        submittedDate
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    <select
+                        id="status-${complaint._id}"
+                        class="status-select"
+                    >
+
+                        <option
+                            value="Pending"
+                            ${
+                                status === 'Pending'
+                                    ? 'selected'
+                                    : ''
+                            }
+                        >
+                            Pending
+                        </option>
+
+
+                        <option
+                            value="In Progress"
+                            ${
+                                status === 'In Progress'
+                                    ? 'selected'
+                                    : ''
+                            }
+                        >
+                            In Progress
+                        </option>
+
+
+                        <option
+                            value="Resolved"
+                            ${
+                                status === 'Resolved'
+                                    ? 'selected'
+                                    : ''
+                            }
+                        >
+                            Resolved
+                        </option>
+
+                    </select>
+
+
+                    <button
+                        class="update-btn"
+                        onclick="updateComplaintStatus(
+                            '${complaint._id}'
+                        )"
+                    >
+                        Update
+                    </button>
+
+                </td>
+
+            `;
+
+
+            complaintsBody
+                .appendChild(row);
+
+        }
+    );
 
 }
 
 
 
 // ----------------------------------------------------
-// Complaint status CSS
+// UPDATE COMPLAINT STATUS
+// ----------------------------------------------------
+
+async function updateComplaintStatus(
+    complaintId
+) {
+
+    const select =
+        document.getElementById(
+            `status-${complaintId}`
+        );
+
+
+    if (!select) {
+
+        alert(
+            'Unable to find status selector.'
+        );
+
+        return;
+
+    }
+
+
+    const newStatus =
+        select.value;
+
+
+    const confirmed =
+        window.confirm(
+            `Change complaint status to "${newStatus}"?`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+
+                `/api/complaints/${complaintId}/status`,
+
+                {
+
+                    method: 'PATCH',
+
+                    headers: {
+
+                        'Content-Type':
+                            'application/json'
+
+                    },
+
+                    body: JSON.stringify({
+
+                        status:
+                            newStatus
+
+                    })
+
+                }
+
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+
+                result.message ||
+
+                'Unable to update complaint status.'
+
+            );
+
+        }
+
+
+        complaintMessage.textContent =
+            'Complaint status updated successfully.';
+
+
+        await loadComplaints();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            'Complaint update error:',
+            error
+        );
+
+
+        alert(
+            error.message
+        );
+
+    }
+
+}
+
+
+
+// ----------------------------------------------------
+// STATUS CSS CLASS
 // ----------------------------------------------------
 
 function getStatusClass(status) {
 
-    if (status === "Resolved") {
+    if (
+        status === 'Resolved'
+    ) {
 
-        return "status-resolved";
-
-    }
-
-
-    if (status === "In Progress") {
-
-        return "status-progress";
+        return 'status-resolved';
 
     }
 
 
-    return "status-pending";
+    if (
+        status === 'In Progress'
+    ) {
+
+        return 'status-progress';
+
+    }
+
+
+    return 'status-pending';
 
 }
 
 
 
 // ----------------------------------------------------
-// Escape HTML
+// ESCAPE HTML
 // ----------------------------------------------------
 
 function escapeHtml(value) {
 
     const div =
-        document.createElement("div");
+        document.createElement('div');
+
 
     div.textContent =
-        String(value ?? "");
+        String(
+            value ?? ''
+        );
+
 
     return div.innerHTML;
 
@@ -236,29 +486,14 @@ function escapeHtml(value) {
 
 
 // ----------------------------------------------------
-// Refresh button
+// REFRESH
 // ----------------------------------------------------
 
 refreshButton.addEventListener(
-    "click",
-    loadComplaints
-);
-
-
-
-// ----------------------------------------------------
-// Logout
-// ----------------------------------------------------
-
-logoutButton.addEventListener(
-    "click",
+    'click',
     function () {
 
-        localStorage.removeItem("token");
-
-        localStorage.removeItem("user");
-
-        window.location.href = "/";
+        loadComplaints();
 
     }
 );
@@ -266,7 +501,43 @@ logoutButton.addEventListener(
 
 
 // ----------------------------------------------------
-// Load when page opens
+// LOGOUT
+// ----------------------------------------------------
+
+logoutButton.addEventListener(
+    'click',
+    function () {
+
+        localStorage.removeItem(
+            'token'
+        );
+
+        localStorage.removeItem(
+            'user'
+        );
+
+
+        window.location.href =
+            '/';
+
+    }
+);
+
+
+
+// ----------------------------------------------------
+// INITIAL LOAD
 // ----------------------------------------------------
 
 loadComplaints();
+
+
+
+// ----------------------------------------------------
+// AUTO REFRESH EVERY 10 SECONDS
+// ----------------------------------------------------
+
+setInterval(
+    loadComplaints,
+    10000
+);

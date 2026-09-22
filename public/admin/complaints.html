@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -16,6 +17,7 @@
         href="/css/admin.css"
     >
 
+
     <style>
 
         .complaints-table {
@@ -24,21 +26,29 @@
             background: white;
             border-radius: 8px;
             overflow: hidden;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         .complaints-table th,
         .complaints-table td {
-            padding: 12px;
+            padding: 12px 14px;
             border-bottom: 1px solid #e2e8f0;
             text-align: left;
             font-size: 14px;
+            vertical-align: middle;
         }
 
         .complaints-table th {
-            background: #f1f5f9;
+            background: #f8fafc;
             color: #334155;
         }
+
+        .complaints-table tr:hover {
+            background: #f8fafc;
+        }
+
+
+        /* STATUS */
 
         .status {
             display: inline-block;
@@ -63,34 +73,92 @@
             color: #15803d;
         }
 
+
+        /* DESCRIPTION */
+
+        .description-cell {
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+
+        /* STATUS SELECT */
+
+        .status-select {
+            padding: 7px 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            margin-right: 6px;
+            background: white;
+        }
+
+
+        /* UPDATE BUTTON */
+
+        .update-btn {
+            padding: 7px 12px;
+            border: none;
+            border-radius: 5px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .update-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .update-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+
+        /* MESSAGE */
+
         .message {
             margin-top: 15px;
             color: #64748b;
         }
 
-        .description-cell {
-            max-width: 350px;
-            word-wrap: break-word;
+
+        /* BACK LINK */
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 16px;
+            color: #64748b;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
         }
 
     </style>
+
 </head>
 
 
 <body>
 
+
 <div class="dashboard-container">
 
 
-    <!-- ============================== -->
-    <!-- ADMIN SIDEBAR -->
-    <!-- ============================== -->
+    <!-- ===================================== -->
+    <!-- SIDEBAR -->
+    <!-- ===================================== -->
 
     <aside class="sidebar">
 
         <div>
 
-            <h2>Admin Portal</h2>
+            <h2>
+                Admin Portal
+            </h2>
 
             <p id="adminName">
                 Administrator
@@ -143,11 +211,22 @@
 
 
 
-    <!-- ============================== -->
-    <!-- MAIN CONTENT -->
-    <!-- ============================== -->
+    <!-- ===================================== -->
+    <!-- MAIN -->
+    <!-- ===================================== -->
 
-    <main class="main-content">
+    <main
+        class="main-content"
+        style="padding: 24px; flex: 1"
+    >
+
+
+        <a
+            href="/admin/dashboard.html"
+            class="back-link"
+        >
+            ← Back to Dashboard
+        </a>
 
 
         <div class="dashboard-header">
@@ -159,7 +238,7 @@
                 </h1>
 
                 <p>
-                    View accommodation complaints submitted by students.
+                    View student complaints and update their status.
                 </p>
 
             </div>
@@ -176,7 +255,6 @@
         </div>
 
 
-
         <p
             id="complaintMessage"
             class="message"
@@ -185,6 +263,10 @@
         </p>
 
 
+
+        <!-- ===================================== -->
+        <!-- COMPLAINT TABLE -->
+        <!-- ===================================== -->
 
         <table class="complaints-table">
 
@@ -212,6 +294,10 @@
                         Submitted
                     </th>
 
+                    <th>
+                        Actions
+                    </th>
+
                 </tr>
 
             </thead>
@@ -230,6 +316,7 @@
 
 
 <script src="/js/adminComplaints.js"></script>
+
 
 </body>
 
