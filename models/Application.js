@@ -13,5 +13,11 @@ const applicationSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
-
+applicationSchema.index(
+  { studentId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { status: { $in: ['Pending', 'Approved'] } }
+  }
+);
 module.exports = mongoose.model('Application', applicationSchema);
