@@ -1,8 +1,6 @@
-# Student Accommodation Management System — Sprint 1
+# Student Accommodation Management System — Sprint 1 & Sprint 2
 
-A Node.js + Express + MongoDB application covering all six Sprint 1 modules:
-Authentication & Access Control, Admin Review & Approval, Complaint Module,
-Reporting & Dashboard, Application Module, and Room Management.
+A Node.js + Express + MongoDB application for the SIT725 Student Accommodation Management System. The project includes Authentication & Access Control, Admin Review & Approval, Complaint Management, Reporting & Dashboard, Application Management, and Room Management. Sprint 2 extends the working MVP with complaint status management, admin complaint integration, search/filtering, testing, and final integration improvements.
 
 This is a cleaned-up version of the Sprint 1 codebase — a handful of bugs
 found during integration testing (a server-crashing require path, a
@@ -72,10 +70,9 @@ browser with no manual API calls required.
 - **Browse rooms** at `/index.html` — search, filter by type/status/price,
   and sort.
 - **Apply for a room / track status** at `/application.html`.
-- **File or view complaints** at `/complaints.html`.
-- **Admin dashboard** (`/admin/dashboard.html`) shows live room, application,
-  and complaint statistics, plus a list of submitted applications with
-  Approve/Reject actions.
+- **File or view complaints** at `/complaints.html`. Students can submit complaints and view their latest stored status.
+- **Manage complaints as an admin** at `/admin/complaints.html`. Admins can search/filter complaints and update individual complaint statuses to Pending, In Progress, or Resolved.
+- **Admin dashboard** (`/admin/dashboard.html`) shows live room, application, and complaint statistics, plus submitted applications with Approve/Reject actions.
 
 ## Module → API reference
 
@@ -84,7 +81,7 @@ browser with no manual API calls required.
 | Auth | `POST /api/auth/register`, `POST /api/auth/login` |
 | Rooms | `GET /api/rooms` (supports `search`, `type`, `status`, `minPrice`, `maxPrice`, `sort`), `GET /api/rooms/:id`, `POST /api/rooms` |
 | Applications | `POST /api/applications`, `GET /api/applications/:studentId`, `GET /api/applications`, `PATCH /api/applications/:id` |
-| Complaints | `POST /api/complaints`, `GET /api/complaints`, `GET /api/complaints/student/:studentId`, `GET /api/complaints/:id` |
+| Complaints | `POST /api/complaints`, `GET /api/complaints`, `GET /api/complaints/student/:studentId`, `GET /api/complaints/:id`, `PATCH /api/complaints/:id/status`, `PATCH /api/complaints/student/:studentId/status` |
 | Dashboard | `GET /api/dashboard/stats` (admin-only, requires a Bearer token) |
 
 ## Notes for teammates
@@ -171,79 +168,79 @@ seed/
 
 ## Overview
 
-The Complaint Module is part of the Student Accommodation Management System developed for SIT725 - Applied Software Engineering.
+The Complaint Module is Clive's contribution to the Student Accommodation Management System. It supports the complete complaint workflow between students and administrators.
 
-The module allows students to:
+Students can submit accommodation-related complaints and view their complaint history. Administrators can view all submitted complaints, search and filter complaint records, and update the status of an individual complaint.
 
-- Submit accommodation-related complaints
-- Enter their Student ID and name
-- Describe an accommodation issue
-- View previously submitted complaints
-- View the current status of each complaint
-
-The module uses a frontend built with HTML, CSS and JavaScript, a Node.js/Express backend, and MongoDB with Mongoose for persistent data storage.
-
----
+The module uses HTML, CSS and JavaScript on the frontend, Node.js and Express on the backend, and MongoDB with Mongoose for persistent storage.
 
 ## Main Features
 
-### Complaint Submission
+### Student Complaint Submission
 
-Students can submit a complaint by entering:
+Students can submit a complaint using:
 
 - Student ID
 - Student Name
 - Complaint Description
 
-After successful submission, the complaint is stored in MongoDB.
+New complaints are stored in MongoDB and automatically receive the status `Pending`.
 
----
+### Student Complaint History
 
-### Complaint History
-
-Students can enter their Student ID and load complaints previously submitted under that ID.
-
-Each complaint displays:
+Students can enter their Student ID to retrieve previously submitted complaints. Each complaint shows:
 
 - Complaint description
-- Submission date
+- Student ID and student name
+- Submission date/time
 - Current complaint status
 
----
+### Admin Complaint Management
 
-## Complaint Status
+Administrators can open:
 
-Each new complaint is automatically given the status:
+```text
+/admin/complaints.html
+```
 
-`Pending`
+The admin complaint page displays all complaints and allows the administrator to update the exact complaint selected using its MongoDB `_id`.
 
-The complaint model supports the following status values:
+Supported statuses are:
 
-- Pending
-- In Progress
-- Resolved
+- `Pending`
+- `In Progress`
+- `Resolved`
 
----
+The status update is persisted to MongoDB, so the updated value is also visible when the student reloads their complaint history.
+
+### Complaint Search and Filtering
+
+The admin complaint page supports client-side filtering by:
+
+- Student ID
+- Student name
+- Complaint description text
+- Status (`Pending`, `In Progress`, or `Resolved`)
+
+The search field and status dropdown can be used together, and the **Clear** button resets all filters.
 
 ## Validation
 
-The Complaint Module includes validation on both the frontend and backend.
+Validation is implemented on both the frontend and backend.
 
-Validation rules include:
+Rules include:
 
 - Student ID is required
 - Student Name is required
 - Complaint Description is required
 - Complaint description must contain at least 5 characters
 - Complaint description cannot exceed 500 characters
-
-Invalid data is rejected before being stored in the database.
-
----
+- Status must be one of `Pending`, `In Progress`, or `Resolved`
+- Invalid MongoDB complaint IDs return an appropriate client error instead of crashing the server
 
 ## Complaint Data Model
 
-The Complaint model contains the following fields:
+The Mongoose Complaint model contains:
 
 ```text
 studentId
@@ -252,24 +249,116 @@ description
 status
 createdAt
 updatedAt
-# Complaint Module - Clive
+```
 
-The Complaint Module allows students to submit accommodation
-complaints and view their complaint history.
+The status field is restricted to:
 
-### Technologies
+```text
+Pending
+In Progress
+Resolved
+```
 
-- Node.js
-- Express.js
-- MongoDB
-- Mongoose
-- HTML
-- CSS
-- JavaScript
+and defaults to `Pending` when a new complaint is created.
 
-## Running the Project
+## Complaint API Endpoints
 
-Install dependencies:
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/api/complaints` | Submit a new complaint |
+| `GET` | `/api/complaints` | Retrieve all complaints for the admin interface |
+| `GET` | `/api/complaints/student/:studentId` | Retrieve complaints belonging to one student |
+| `GET` | `/api/complaints/:id` | Retrieve one complaint using its MongoDB `_id` |
+| `PATCH` | `/api/complaints/:id/status` | Update the status of one specific complaint |
+| `PATCH` | `/api/complaints/student/:studentId/status` | Update the latest complaint for a student ID (mainly useful for testing/manual API use) |
+
+### Example Status Update
 
 ```bash
-npm install
+curl -X PATCH \
+http://localhost:3000/api/complaints/COMPLAINT_MONGODB_ID/status \
+-H "Content-Type: application/json" \
+-d '{"status":"In Progress"}'
+```
+
+For the admin UI, the MongoDB complaint `_id` endpoint is preferred because one student can submit multiple complaints and the administrator must update the exact complaint selected.
+
+## Complaint Module Testing
+
+The complaint module can be tested with Jest and Supertest. The automated suite should cover the main success and validation cases, including:
+
+- Successful complaint submission
+- Missing Student ID
+- Missing Student Name
+- Complaint description below the minimum length
+- Complaint description above the maximum length
+- Retrieving all complaints
+- Retrieving complaints for a specific student
+- Retrieving one complaint by ID
+- Complaint-not-found responses
+- Updating status to `In Progress`
+- Updating status to `Resolved`
+- Rejecting an invalid status
+- Rejecting a missing status
+
+Run the complaint tests with:
+
+```bash
+npx jest tests/complaint.test.js --runInBand
+```
+
+The complete end-to-end browser workflow should also be checked manually:
+
+```text
+Student submits complaint
+        ↓
+Complaint stored as Pending
+        ↓
+Admin views complaint
+        ↓
+Admin changes status to In Progress
+        ↓
+Admin changes status to Resolved
+        ↓
+Student reloads complaint history
+        ↓
+Updated status is displayed
+```
+
+## Key Complaint Files
+
+```text
+controllers/
+└── complaintController.js
+
+models/
+└── Complaint.js
+
+routes/
+└── complaintRoutes.js
+
+public/
+├── complaints.html
+├── admin/
+│   └── complaints.html
+└── js/
+    ├── complaints.js
+    └── adminComplaints.js
+
+tests/
+├── complaint.test.js
+└── complaintTestApp.js
+```
+
+## Sprint 2 Tasks - Clive
+
+Clive's Sprint 2 complaint work includes:
+
+| Task | Estimated Time | Status |
+|---|---:|---|
+| PATCH complaint status API | 5 hours | Completed |
+| Complaint - admin integration | 5 hours | Completed |
+| Complaint filtering/search | 4 hours | Completed |
+| Complaint module testing | 5 hours | Testing / evidence |
+
+These tasks extend the Sprint 1 complaint functionality into a complete student-to-admin complaint-management workflow.
