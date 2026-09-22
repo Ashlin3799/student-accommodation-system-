@@ -180,28 +180,6 @@
             margin-top: 10px;
         }
 
-        .meta code {
-            background: #f0f0f0;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        .copy-id-btn {
-            padding: 3px 10px;
-            font-size: 12px;
-            margin: 0 0 0 6px;
-            background: #14403f;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .copy-id-btn:hover {
-            background: #0d2b2a;
-        }
-
         .live-note {
             font-size: 13px;
             color: #14403f;
@@ -326,7 +304,10 @@
 
 <script>
 
+    // remembers the last student id typed so they don't have to retype it
     const STORAGE_KEY = "sas_last_student_id";
+
+// how often we check the server for admin decisions
     const POLL_INTERVAL_MS = 15000;
 
     let pollTimer = null;
@@ -363,26 +344,8 @@
                     Last updated: ${formatDate(data.updatedAt)}
                 </p>
 
-                <p class="meta">
-                    Application ID: <code id="appIdText">${data._id || "N/A"}</code>
-                    <button type="button" class="copy-id-btn" id="copyIdBtn">Copy ID</button>
-                </p>
-
             </div>
         `;
-
-        const copyBtn = document.getElementById("copyIdBtn");
-        if (copyBtn && data._id) {
-            copyBtn.addEventListener("click", async () => {
-                try {
-                    await navigator.clipboard.writeText(data._id);
-                    copyBtn.textContent = "Copied!";
-                    setTimeout(() => { copyBtn.textContent = "Copy ID"; }, 1500);
-                } catch (err) {
-                    console.error(err);
-                }
-            });
-        }
     }
 
     function renderNotFound(message) {
@@ -423,7 +386,7 @@
     function startPolling(studentId) {
         stopPolling();
         pollTimer = setInterval(() => fetchStatus(studentId, { silent: true }), POLL_INTERVAL_MS);
-        document.getElementById("autoRefreshBtn").textContent = "Turn off live updates";
+        document.getElementById("autoRefreshBtn").textContent = "Stop checking";
         const statusResult = document.getElementById("statusResult");
         const note = document.createElement("div");
         note.className = "live-note";
@@ -438,7 +401,7 @@
             pollTimer = null;
         }
         const btn = document.getElementById("autoRefreshBtn");
-        if (btn) btn.textContent = "Turn on live updates";
+        if (btn) btn.textContent = "Check for updates automatically";
         const note = document.getElementById("liveNote");
         if (note) note.remove();
     }
