@@ -239,3 +239,329 @@
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
+
+/* ==========================================
+   ROOM MANAGEMENT — TOOLBAR
+========================================== */
+
+.rooms-status-message {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-bottom: 14px;
+}
+
+.rooms-toolbar {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.rooms-toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.rooms-toolbar-row + .rooms-toolbar-row {
+  margin-top: 10px;
+}
+
+.rooms-toolbar input,
+.rooms-toolbar select {
+  font-family: inherit;
+  font-size: 0.9rem;
+  background: #fff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.rooms-toolbar #roomSearch {
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+
+.rooms-toolbar select { min-width: 130px; cursor: pointer; }
+.rooms-toolbar input[type="number"] { width: 100px; }
+
+.toolbar-label {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.btn-primary { background: #2563eb; color: white; }
+.btn-primary:hover { background: #1d4ed8; }
+
+.btn-ghost {
+  background: transparent;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+}
+.btn-ghost:hover { background: #eff6ff; }
+
+.btn-add-room {
+  margin-left: auto;
+}
+
+/* ==========================================
+   ROOM MANAGEMENT — CARD GRID
+========================================== */
+
+.admin-room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.admin-room-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.admin-room-card:hover {
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+  transform: translateY(-2px);
+}
+
+.room-media {
+  position: relative;
+  height: 150px;
+  width: 100%;
+  overflow: hidden;
+  background: #e2e8f0;
+}
+
+.room-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.room-media-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.room-media-placeholder svg {
+  width: 42px;
+  height: 42px;
+  opacity: 0.85;
+}
+
+.room-media-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.room-status-available   { background: #16a34a; }
+.room-status-occupied    { background: #dc2626; }
+.room-status-reserved    { background: #d97706; }
+.room-status-maintenance { background: #64748b; }
+
+.room-card-body {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.room-card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.room-card-number {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.room-card-type {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: capitalize;
+  background: #f1f5f9;
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+
+.room-card-location {
+  font-size: 0.83rem;
+  color: #64748b;
+}
+
+.room-card-desc {
+  font-size: 0.83rem;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.room-card-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 8px;
+  margin-top: auto;
+}
+
+.room-card-price {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.room-card-price span {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.room-card-occupancy {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.room-card-amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.room-card-amenities span {
+  font-size: 0.7rem;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.room-card-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 16px;
+}
+
+.room-card-actions button {
+  flex: 1;
+  padding: 7px 0;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.btn-edit-room { background: #eff6ff; color: #2563eb; }
+.btn-edit-room:hover { background: #dbeafe; }
+
+.btn-delete-room { background: #fef2f2; color: #dc2626; }
+.btn-delete-room:hover { background: #fee2e2; }
+
+/* ==========================================
+   ROOM FORM MODAL
+========================================== */
+
+.room-form-modal .modal-content {
+  max-width: 640px;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.room-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.room-form-grid .form-field-full {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.9rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #0f172a;
+}
+
+.form-field textarea {
+  resize: vertical;
+  min-height: 56px;
+}
+
+.form-hint {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 3px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 14px;
+}
+
+.form-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.83rem;
+  margin-top: 12px;
+}
