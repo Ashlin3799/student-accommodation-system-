@@ -52,6 +52,7 @@
         <label class="price-label" for="maxPrice">Max $</label>
         <input id="maxPrice" type="number" min="0" placeholder="1000" />
         <button id="clearFilters" type="button">Clear filters</button>
+        <button id="savedToggle" type="button" class="saved-toggle">♡ Saved <span id="savedCount">0</span></button>
       </div>
     </section>
 
@@ -61,6 +62,36 @@
       <p id="emptyState" class="empty-state" hidden>No rooms match those filters. Try widening your search.</p>
     </section>
   </main>
+
+  <!-- Room details modal -->
+  <div id="roomModal" class="room-modal" hidden>
+    <div class="room-modal-backdrop" id="roomModalBackdrop"></div>
+    <div class="room-modal-content">
+      <button type="button" class="room-modal-close" id="roomModalClose" aria-label="Close">&times;</button>
+      <div class="room-modal-gallery">
+        <img id="modalMainImage" class="room-modal-main-image" alt="" hidden />
+        <div id="modalMainPlaceholder" class="room-media-placeholder"></div>
+        <div id="modalThumbs" class="room-modal-thumbs"></div>
+      </div>
+      <div class="room-modal-body">
+        <div class="room-modal-head">
+          <div>
+            <div id="modalRoomNumber" class="room-number"></div>
+            <div id="modalRoomBuilding" class="room-building"></div>
+          </div>
+          <span id="modalStatusTag" class="status-tag"></span>
+        </div>
+        <div id="modalRoomType" class="room-type"></div>
+        <p id="modalDescription" class="room-desc"></p>
+        <div id="modalAmenities" class="room-amenities"></div>
+        <div class="room-foot">
+          <div id="modalPrice" class="room-price"></div>
+          <div id="modalOccupancy" class="room-occupancy"></div>
+        </div>
+        <a id="modalApplyBtn" class="apply-btn" href="#">Apply for this room</a>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
