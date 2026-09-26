@@ -367,6 +367,10 @@ button:hover {
 /* ROOM DETAILS MODAL                                    */
 /* ---------------------------------------------------- */
 
+.room-modal[hidden] {
+  display: none;
+}
+
 .room-modal {
   position: fixed;
   inset: 0;
