@@ -1,18 +1,7 @@
 const Room = require('../models/Room');
-function formatMongooseError(err) {
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyPattern || { roomNumber: 1 })[0];
-    return { status: 409, message: `A room with that ${field} already exists` };
-  }
-  if (err.name === 'ValidationError') {
-    const message = Object.values(err.errors).map((e) => e.message).join(', ');
-    return { status: 400, message };
-  }
-  if (err.name === 'CastError') {
-    return { status: 400, message: 'Invalid room id' };
-  }
-  return null;
-}
+// NOTE: Mongoose validation errors, duplicate-key errors (code 11000) and
+// CastErrors are NOT formatted here — they're passed to next(err) and
+// handled once, centrally, by middleware/errorhandler.js.
 
 // GET /api/rooms
 // Public, student-facing room catalogue
@@ -148,12 +137,8 @@ exports.createRoom = async (req, res, next) => {
       description: description || ''
     });
 
-    res.status(201).json(room);
-    } catch (err) {
-    const formatted = formatMongooseError(err);
-    if (formatted) {
-      return res.status(formatted.status).json({ success: false, message: formatted.message });
-    }
+        res.status(201).json(room);
+  } catch (err) {
     next(err);
   }
 };
@@ -218,15 +203,10 @@ exports.updateRoom = async (req, res, next) => {
     }
 
     res.json(room);
-   } catch (err) {
-    const formatted = formatMongooseError(err);
-    if (formatted) {
-      return res.status(formatted.status).json({ success: false, message: formatted.message });
-    }
+  } catch (err) {
     next(err);
   }
 };
-
 // Adjust a room's occupied count by `delta` (+1 when an application is
 // approved, -1 when a previously-approved application is rejected/reset).
 // Clamped to [0, capacity] so it can never go negative or over-book a
