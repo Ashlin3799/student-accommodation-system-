@@ -13,4 +13,11 @@ router.get(
   dashboardController.getDashboardStats
 );
 
+router.get(
+  '/trends',
+  authMiddleware,
+  roleMiddleware('admin'),
+  dashboardController.getDashboardTrends
+);
+
 module.exports = router;
