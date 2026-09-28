@@ -1,3 +1,28 @@
+function getActiveFilters() {
+  const startDate = document.querySelector('#filterStartDate')?.value || '';
+  const endDate = document.querySelector('#filterEndDate')?.value || '';
+  const category = document.querySelector('#filterCategory')?.value || 'all';
+
+  return { startDate, endDate, category };
+}
+
+function buildStatsQuery({ startDate, endDate, category }) {
+  const params = new URLSearchParams();
+  if (startDate) params.set('startDate', startDate);
+  if (endDate) params.set('endDate', endDate);
+  if (category && category !== 'all') params.set('category', category);
+  const query = params.toString();
+  return query ? `?${query}` : '';
+}
+
+function buildTrendsQuery({ startDate, endDate }) {
+  const params = new URLSearchParams();
+  if (startDate) params.set('startDate', startDate);
+  if (endDate) params.set('endDate', endDate);
+  const query = params.toString();
+  return query ? `?${query}` : '';
+}
+
 async function loadDashboard() {
   const message = document.querySelector('#dashboardMessage');
 
@@ -7,14 +32,12 @@ async function loadDashboard() {
 
   try {
     const token = localStorage.getItem('token');
+    const filters = getActiveFilters();
 
-    if (!token) {
-      throw new Error('Authentication token not found. Please log in again.');
-    }
-
-    const response = await fetch('/api/dashboard/stats', {
+    const response = await fetch(`/api/dashboard/stats${buildStatsQuery(filters)}`, {
       method: 'GET',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       }
     });
@@ -28,8 +51,7 @@ async function loadDashboard() {
     }
 
     renderDashboard(result.data);
-
-    await loadTrends();
+    loadTrends(buildTrendsQuery(filters));
 
     if (message) {
       message.textContent = 'Dashboard updated successfully.';
@@ -38,162 +60,102 @@ async function loadDashboard() {
     console.error('Dashboard error:', error);
 
     if (message) {
-      message.textContent =
-        error.message || 'Unable to load dashboard.';
+      message.textContent = error.message;
     }
   }
 }
 
 function renderDashboard(data) {
-  if (!data) return;
-
-  // Room statistics
-  setValue('#totalRooms', data.rooms?.totalRooms ?? 0);
-  setValue('#totalCapacity', data.rooms?.totalCapacity ?? 0);
-  setValue('#totalOccupied', data.rooms?.totalOccupied ?? 0);
-  setValue('#availableBeds', data.rooms?.availableBeds ?? 0);
-  setValue(
-    '#occupancyRate',
-    `${data.rooms?.occupancyRate ?? 0}%`
-  );
+  // Room statistics (omitted from the response when category filters them out)
+  if (data.rooms) {
+    setValue('#totalRooms', data.rooms.totalRooms);
+    setValue('#totalCapacity', data.rooms.totalCapacity);
+    setValue('#totalOccupied', data.rooms.totalOccupied);
+    setValue('#availableBeds', data.rooms.availableBeds);
+    setValue('#occupancyRate', `${data.rooms.occupancyRate}%`);
+  }
 
   // Application statistics
-  setValue('#totalApplications', data.applications?.total ?? 0);
-  setValue(
-    '#pendingApplications',
-    data.applications?.pending ?? 0
-  );
-  setValue(
-    '#approvedApplications',
-    data.applications?.approved ?? 0
-  );
-  setValue(
-    '#rejectedApplications',
-    data.applications?.rejected ?? 0
-  );
+  if (data.applications) {
+    setValue('#totalApplications', data.applications.total);
+    setValue('#pendingApplications', data.applications.pending);
+    setValue('#approvedApplications', data.applications.approved);
+    setValue('#rejectedApplications', data.applications.rejected);
+  }
 
   // Complaint statistics
-  setValue('#totalComplaints', data.complaints?.total ?? 0);
-  setValue(
-    '#pendingComplaints',
-    data.complaints?.pending ?? 0
-  );
-  setValue(
-    '#progressComplaints',
-    data.complaints?.inProgress ?? 0
-  );
-  setValue(
-    '#resolvedComplaints',
-    data.complaints?.resolved ?? 0
-  );
+  if (data.complaints) {
+    setValue('#totalComplaints', data.complaints.total);
+    setValue('#pendingComplaints', data.complaints.pending);
+    setValue('#progressComplaints', data.complaints.inProgress);
+    setValue('#resolvedComplaints', data.complaints.resolved);
+  }
 }
 
-
-// Chart.js instances
 const dashboardCharts = {
   applicationsTrend: null,
   complaintsTrend: null,
   complaintsBreakdown: null
 };
 
-
 async function loadTrends(queryString = '') {
   try {
     const token = localStorage.getItem('token');
 
-    if (!token) {
-      throw new Error('Authentication token not found.');
-    }
-
-    const response = await fetch(
-      `/api/dashboard/trends${queryString}`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+    const response = await fetch(`/api/dashboard/trends${queryString}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
       }
-    );
+    });
 
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(
-        result.message || 'Unable to load dashboard trends'
-      );
+      throw new Error(result.message || 'Unable to load dashboard trends');
     }
 
     renderTrendCharts(result.data);
-
-    return result.data;
   } catch (error) {
     console.error('Dashboard trends error:', error);
-    throw error;
   }
 }
 
-
 function renderTrendCharts(data) {
-  if (typeof Chart === 'undefined') {
-    console.error(
-      'Chart.js is not loaded. Make sure the Chart.js script is included before this file.'
-    );
-    return;
-  }
-
-  if (!data) {
-    console.error('No trend data received.');
-    return;
-  }
+  if (typeof Chart === 'undefined') return;
 
   renderLineChart(
     'applicationsTrendChart',
     'applicationsTrend',
-    data.applications?.labels ?? [],
-    data.applications?.series ?? {}
+    data.applications.labels,
+    data.applications.series
   );
 
   renderLineChart(
     'complaintsTrendChart',
     'complaintsTrend',
-    data.complaints?.labels ?? [],
-    data.complaints?.series ?? {}
+    data.complaints.labels,
+    data.complaints.series
   );
 
-  renderBreakdownChart(
-    'complaintsBreakdownChart',
-    data.complaints?.series ?? {}
-  );
+  renderBreakdownChart('complaintsBreakdownChart', data.complaints.series);
 }
-
 
 function renderLineChart(canvasId, chartKey, labels, series) {
   const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
 
-  if (!canvas) {
-    console.warn(`Canvas #${canvasId} was not found.`);
-    return;
-  }
+  const colors = ['#f59e0b', '#3b82f6', '#22c55e', '#ef4444'];
 
-  const colors = [
-    '#f59e0b',
-    '#3b82f6',
-    '#22c55e',
-    '#ef4444'
-  ];
-
-  const datasets = Object.keys(series).map(
-    (statusKey, index) => ({
-      label: statusKey,
-      data: series[statusKey],
-      borderColor: colors[index % colors.length],
-      backgroundColor: colors[index % colors.length],
-      tension: 0.25,
-      fill: false,
-      pointRadius: 3,
-      pointHoverRadius: 5
-    })
-  );
+  const datasets = Object.keys(series).map((statusKey, index) => ({
+    label: statusKey,
+    data: series[statusKey],
+    borderColor: colors[index % colors.length],
+    backgroundColor: colors[index % colors.length],
+    tension: 0.25,
+    fill: false
+  }));
 
   if (dashboardCharts[chartKey]) {
     dashboardCharts[chartKey].data.labels = labels;
@@ -204,104 +166,39 @@ function renderLineChart(canvasId, chartKey, labels, series) {
 
   dashboardCharts[chartKey] = new Chart(canvas, {
     type: 'line',
-
-    data: {
-      labels,
-      datasets
-    },
-
+    data: { labels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-
-      interaction: {
-        mode: 'index',
-        intersect: false
-      },
-
-      plugins: {
-        legend: {
-          display: true
-        }
-      },
-
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            precision: 0
-          }
-        }
-      }
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
     }
   });
 }
 
-
 function renderBreakdownChart(canvasId, series) {
   const canvas = document.getElementById(canvasId);
-
-  if (!canvas) {
-    console.warn(`Canvas #${canvasId} was not found.`);
-    return;
-  }
+  if (!canvas) return;
 
   const labels = Object.keys(series);
-
-  const totals = labels.map((key) =>
-    Array.isArray(series[key])
-      ? series[key].reduce(
-          (sum, number) => sum + Number(number || 0),
-          0
-        )
-      : 0
-  );
-
-  const colors = [
-    '#f59e0b',
-    '#3b82f6',
-    '#22c55e',
-    '#ef4444'
-  ];
+  const totals = labels.map((key) => series[key].reduce((sum, n) => sum + n, 0));
+  const colors = ['#f59e0b', '#3b82f6', '#22c55e', '#ef4444'];
 
   if (dashboardCharts.complaintsBreakdown) {
     dashboardCharts.complaintsBreakdown.data.labels = labels;
-
-    dashboardCharts.complaintsBreakdown.data.datasets[0].data =
-      totals;
-
+    dashboardCharts.complaintsBreakdown.data.datasets[0].data = totals;
     dashboardCharts.complaintsBreakdown.update();
-
     return;
   }
 
   dashboardCharts.complaintsBreakdown = new Chart(canvas, {
     type: 'doughnut',
-
     data: {
       labels,
-
-      datasets: [
-        {
-          data: totals,
-          backgroundColor: colors
-        }
-      ]
+      datasets: [{ data: totals, backgroundColor: colors }]
     },
-
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-
-      plugins: {
-        legend: {
-          position: 'bottom'
-        }
-      }
-    }
+    options: { responsive: true, maintainAspectRatio: false }
   });
 }
-
 
 function setValue(selector, value) {
   const element = document.querySelector(selector);
@@ -311,21 +208,30 @@ function setValue(selector, value) {
   }
 }
 
-
 function setupDashboard() {
-  const refreshButton = document.querySelector(
-    '#refreshDashboardBtn'
-  );
+  const refreshButton = document.querySelector('#refreshDashboardBtn');
+  const filterForm = document.querySelector('#dashboardFilters');
+  const resetButton = document.querySelector('#resetFiltersBtn');
 
   if (refreshButton) {
     refreshButton.addEventListener('click', loadDashboard);
   }
 
+  if (filterForm) {
+    filterForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      loadDashboard();
+    });
+  }
+
+  if (resetButton) {
+    resetButton.addEventListener('click', () => {
+      if (filterForm) filterForm.reset();
+      loadDashboard();
+    });
+  }
+
   loadDashboard();
 }
 
-
-document.addEventListener(
-  'DOMContentLoaded',
-  setupDashboard
-);
+document.addEventListener('DOMContentLoaded', setupDashboard);
