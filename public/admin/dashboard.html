@@ -78,8 +78,32 @@
         class="dashboard-message"
         aria-live="polite"
       ></p>
-
+           <!-- Filters -->
       <section class="dashboard-section">
+        <form id="dashboardFilters" class="dashboard-filters">
+          <div class="filter-field">
+            <label for="filterStartDate">From</label>
+            <input type="date" id="filterStartDate" name="startDate">
+          </div>
+          <div class="filter-field">
+            <label for="filterEndDate">To</label>
+            <input type="date" id="filterEndDate" name="endDate">
+          </div>
+          <div class="filter-field">
+            <label for="filterCategory">Category</label>
+            <select id="filterCategory" name="category">
+              <option value="all">All</option>
+              <option value="rooms">Rooms</option>
+              <option value="applications">Applications</option>
+              <option value="complaints">Complaints</option>
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button type="submit" class="filter-apply">Apply Filters</button>
+            <button type="button" id="resetFiltersBtn" class="filter-reset">Reset</button>
+          </div>
+        </form>
+      </section>
 
         <h3>Trends &amp; Breakdowns</h3>
 
