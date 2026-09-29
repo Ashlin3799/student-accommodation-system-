@@ -610,3 +610,34 @@
 .btn-restore-room:hover { background: #dcfce7; }
 
 .room-status-archived { background: #475569; }
+
+/* Sidebar & Layout Fix */
+.dashboard-container {
+  display: flex !important;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px !important;
+  min-width: 250px !important;
+  height: 100vh !important;
+  position: sticky !important;
+  top: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  flex-shrink: 0 !important;
+}
+
+.main-content {
+  flex: 1 !important;
+  min-width: 0 !important;
+  overflow-y: auto !important;
+}
+
+/* Application cards grid layout */
+#applications-list.applications-list {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+  gap: 16px !important;
+}

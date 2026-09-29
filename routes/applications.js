@@ -26,7 +26,6 @@ router.post('/', async (req, res, next) => {
       });
     }
 
-<<<<<<< HEAD
     const newApplication = new Application({
       studentId,
       studentName,
@@ -34,9 +33,6 @@ router.post('/', async (req, res, next) => {
       roomId,
       roomTitle,
     });
-=======
-    const newApplication = new Application({ studentId, studentName, roomId, roomTitle });
->>>>>>> 54277a05ee68e2a17ba9e387f5ee9111772295ad
     await newApplication.save();
 
     res.status(201).json(newApplication);
