@@ -58,7 +58,7 @@
           <button type="button" class="btn btn-primary btn-add-room" id="addRoomButton">+ Add Room</button>
         </div>
 
-        <div class="rooms-toolbar-row">
+        < class="rooms-toolbar-row">
           <span class="toolbar-label">Price $</span>
           <input id="minPrice" type="number" min="0" placeholder="Min" />
           <span class="toolbar-label">–</span>
@@ -69,12 +69,14 @@
             <option value="price_desc">Price: high to low</option>
           </select>
           <button type="button" class="btn btn-ghost" id="clearFiltersButton">Clear filters</button>
-        </div>
+          <button type="button" class="btn btn-ghost btn-archive-toggle" id="archivedToggle">View archived</button>
+          </div>
       </section>
 
       <p id="roomsMessage" class="rooms-status-message">Loading rooms...</p>
 
       <section class="admin-room-grid" id="roomsGrid"></section>
+       <nav class="rooms-pager" id="roomsPager" aria-label="Room pages" hidden></nav>
     </main>
   </div>
 

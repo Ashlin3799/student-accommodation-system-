@@ -65,6 +65,7 @@ const buildDateRange = (days, startDate, endDate) => {
 
 const getRoomStats = async () => {
   const result = await Room.aggregate([
+    { $match: { isArchived: { $ne: true } } },
     {
       $group: {
         _id: null,
