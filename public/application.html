@@ -429,8 +429,7 @@
     function startPolling(studentId) {
         stopPolling();
         pollTimer = setInterval(() => fetchStatus(studentId, { silent: true }), POLL_INTERVAL_MS);
-        document.getElementById("autoRefreshBtn").textContent = "Turn off live updates";
-        const statusResult = document.getElementById("statusResult");
+        document.getElementById("autoRefreshBtn").textContent = "Stop live updates";        const statusResult = document.getElementById("statusResult");
         const note = document.createElement("div");
         note.className = "live-note";
         note.id = "liveNote";
@@ -583,9 +582,9 @@
         const studentId = document.getElementById("checkStudentId").value.trim();
 
         if (!studentId) {
-            statusResult.innerHTML = `<div class="error">Enter a Student ID first.</div>`;
-            return;
-        }
+    statusResult.innerHTML = `<div class="error">Enter a Student ID before turning on live updates.</div>`;
+    return;
+}
 
         if (pollTimer) {
             stopPolling();
