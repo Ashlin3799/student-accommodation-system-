@@ -1,5 +1,4 @@
 global.crypto = require("crypto").webcrypto;
-
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
@@ -9,9 +8,9 @@ const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./src/routes/rooms");
 const applicationRoutes = require("./routes/applications");
-const adminRoutes = require("./routes/adminRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
 const dashboardRoutes = require("./routes/dashboardroutes");
+const errorHandler = require("./middleware/errorhandler");
 
 dotenv.config();
 
@@ -24,52 +23,40 @@ const MONGO_URI = process.env.MONGO_URI;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public"), { index: false }));
 
-// Authentication routes
+// API Routes
 app.use("/api/auth", authRoutes);
-
-// Room Management routes
 app.use("/api/rooms", roomRoutes);
-
-// Application Module routes
 app.use("/api/applications", applicationRoutes);
-
-// Admin Review routes
-app.use("/api/admin", adminRoutes);
-
-// Complaint routes
 app.use("/api/complaints", complaintRoutes);
-
-// Dashboard routes
 app.use("/api/dashboard", dashboardRoutes);
 
-// Home route - Login page
+app.get('/api/student', (req, res) => {
+  res.json({ name: "Purva Dilip Dongre", studentId: "s225385045" });
+});
+
+// HTML Page Routes
 app.get("/", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "public", "login.html")
-    );
+  res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
-// Serve frontend files
-app.use(express.static(path.join(__dirname, "public")));
-
-// Admin Dashboard Page
 app.get("/admin/dashboard.html", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "public", "admin", "dashboard.html")
-    );
+  res.sendFile(path.join(__dirname, "public", "admin", "dashboard.html"));
 });
 
-// MongoDB connection
-mongoose
-    .connect(MONGO_URI)
-    .then(() => {
-        console.log("MongoDB connected successfully");
+// Centralized error handler (must be registered after all routes)
+app.use(errorHandler);
 
-        app.listen(PORT, () => {
-            console.log(`Server running on http://localhost:${PORT}`);
-        });
-    })
-    .catch((error) => {
-        console.error("MongoDB connection error:", error);
+// MongoDB Connection
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
+    console.log("MongoDB connected successfully");
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
     });
+  })
+  .catch((error) => {
+    console.error("MongoDB connection error:", error);
+  });

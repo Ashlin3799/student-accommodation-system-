@@ -19,6 +19,54 @@ const complaintsContainer =
 const loadComplaintsButton =
   document.getElementById('loadComplaints');
 
+const complaintSearchStudentId =
+  document.getElementById('complaintSearchStudentId');
+
+const submitComplaintButton =
+  document.getElementById('submitComplaintButton');
+
+
+// ----------------------------------------------------
+// Prefill logged-in student name if available
+// ----------------------------------------------------
+
+function loadLoggedInUser() {
+
+  const storedUser =
+    localStorage.getItem('user');
+
+  if (!storedUser) {
+    return;
+  }
+
+  try {
+
+    const user =
+      JSON.parse(storedUser);
+
+    if (
+      user &&
+      user.role === 'student' &&
+      user.name
+    ) {
+
+      studentNameInput.value =
+        user.name;
+
+    }
+
+  }
+  catch (error) {
+
+    console.error(
+      'Unable to read logged-in user:',
+      error
+    );
+
+  }
+
+}
+
 
 // ----------------------------------------------------
 // Display message
@@ -26,12 +74,14 @@ const loadComplaintsButton =
 
 function displayMessage(message, type) {
 
-  messageBox.textContent = message;
+  messageBox.textContent =
+    message;
 
   messageBox.className =
     `message ${type}`;
 
-  messageBox.style.display = 'block';
+  messageBox.style.display =
+    'block';
 
 }
 
@@ -42,11 +92,14 @@ function displayMessage(message, type) {
 
 function clearMessage() {
 
-  messageBox.textContent = '';
+  messageBox.textContent =
+    '';
 
-  messageBox.className = 'message';
+  messageBox.className =
+    'message';
 
-  messageBox.style.display = 'none';
+  messageBox.style.display =
+    'none';
 
 }
 
@@ -74,7 +127,9 @@ complaintForm.addEventListener(
       descriptionInput.value.trim();
 
 
+    // ------------------------------------------------
     // Client-side validation
+    // ------------------------------------------------
 
     if (!studentId) {
 
@@ -83,7 +138,10 @@ complaintForm.addEventListener(
         'error'
       );
 
+      studentIdInput.focus();
+
       return;
+
     }
 
 
@@ -94,7 +152,10 @@ complaintForm.addEventListener(
         'error'
       );
 
+      studentNameInput.focus();
+
       return;
+
     }
 
 
@@ -105,7 +166,10 @@ complaintForm.addEventListener(
         'error'
       );
 
+      descriptionInput.focus();
+
       return;
+
     }
 
 
@@ -116,7 +180,39 @@ complaintForm.addEventListener(
         'error'
       );
 
+      descriptionInput.focus();
+
       return;
+
+    }
+
+
+    if (description.length > 500) {
+
+      displayMessage(
+        'Complaint cannot exceed 500 characters.',
+        'error'
+      );
+
+      descriptionInput.focus();
+
+      return;
+
+    }
+
+
+    // ------------------------------------------------
+    // Disable button while submitting
+    // ------------------------------------------------
+
+    if (submitComplaintButton) {
+
+      submitComplaintButton.disabled =
+        true;
+
+      submitComplaintButton.textContent =
+        'Submitting...';
+
     }
 
 
@@ -128,7 +224,8 @@ complaintForm.addEventListener(
           method: 'POST',
 
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type':
+              'application/json'
           },
 
           body: JSON.stringify({
@@ -153,32 +250,60 @@ complaintForm.addEventListener(
         );
 
         return;
+
       }
 
 
       displayMessage(
+        result.message ||
         'Complaint submitted successfully.',
         'success'
       );
 
 
-      descriptionInput.value = '';
+      // Clear only complaint description
+      descriptionInput.value =
+        '';
 
 
-      // Automatically reload complaint list
+      // Put same Student ID into search field
+      complaintSearchStudentId.value =
+        studentId;
 
-      loadStudentComplaints();
+
+      // Automatically reload submitted complaints
+      await loadStudentComplaints(
+        studentId
+      );
 
     }
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        'Complaint submission error:',
+        error
+      );
+
 
       displayMessage(
-        'Server connection error.',
+        'Unable to connect to the server.',
         'error'
       );
+
+    }
+
+    finally {
+
+      if (submitComplaintButton) {
+
+        submitComplaintButton.disabled =
+          false;
+
+        submitComplaintButton.textContent =
+          'Submit Complaint';
+
+      }
 
     }
 
@@ -201,22 +326,67 @@ loadComplaintsButton.addEventListener(
 
 
 // ----------------------------------------------------
+// Allow Enter key in search box
+// ----------------------------------------------------
+
+complaintSearchStudentId.addEventListener(
+  'keydown',
+  function (event) {
+
+    if (event.key === 'Enter') {
+
+      event.preventDefault();
+
+      loadStudentComplaints();
+
+    }
+
+  }
+);
+
+
+// ----------------------------------------------------
 // Retrieve student's complaints
 // ----------------------------------------------------
 
-async function loadStudentComplaints() {
+async function loadStudentComplaints(
+  submittedStudentId = null
+) {
 
-  const studentId =
-    studentIdInput.value.trim();
+  let studentId;
 
+
+  // If complaint was just submitted,
+  // use that Student ID
+  if (submittedStudentId) {
+
+    studentId =
+      submittedStudentId.trim();
+
+  }
+  else {
+
+    studentId =
+      complaintSearchStudentId
+        .value
+        .trim();
+
+  }
+
+
+  // ------------------------------------------------
+  // Validate Student ID
+  // ------------------------------------------------
 
   if (!studentId) {
 
     complaintsContainer.innerHTML = `
-        <p class="error-text">
-            Please enter your Student ID first.
-        </p>
+      <p class="error-text">
+        Please enter your Student ID first.
+      </p>
     `;
+
+    complaintSearchStudentId.focus();
 
     return;
 
@@ -224,7 +394,9 @@ async function loadStudentComplaints() {
 
 
   complaintsContainer.innerHTML = `
-      <p>Loading complaints...</p>
+    <p>
+      Loading complaints...
+    </p>
   `;
 
 
@@ -243,9 +415,12 @@ async function loadStudentComplaints() {
     if (!response.ok) {
 
       complaintsContainer.innerHTML = `
-          <p class="error-text">
-              ${result.message}
-          </p>
+        <p class="error-text">
+          ${escapeHtml(
+            result.message ||
+            'Unable to load complaints.'
+          )}
+        </p>
       `;
 
       return;
@@ -253,18 +428,24 @@ async function loadStudentComplaints() {
     }
 
 
-    displayComplaints(result.data);
+    displayComplaints(
+      result.data
+    );
 
   }
 
   catch (error) {
 
-    console.error(error);
+    console.error(
+      'Complaint loading error:',
+      error
+    );
+
 
     complaintsContainer.innerHTML = `
-        <p class="error-text">
-            Unable to connect to the server.
-        </p>
+      <p class="error-text">
+        Unable to connect to the server.
+      </p>
     `;
 
   }
@@ -278,10 +459,15 @@ async function loadStudentComplaints() {
 
 function displayComplaints(complaints) {
 
-  if (!complaints || complaints.length === 0) {
+  if (
+    !Array.isArray(complaints) ||
+    complaints.length === 0
+  ) {
 
     complaintsContainer.innerHTML = `
-        <p>No complaints have been submitted yet.</p>
+      <p>
+        No complaints have been submitted yet.
+      </p>
     `;
 
     return;
@@ -289,57 +475,132 @@ function displayComplaints(complaints) {
   }
 
 
-  complaintsContainer.innerHTML = '';
+  complaintsContainer.innerHTML =
+    '';
 
 
-  complaints.forEach((complaint) => {
+  complaints.forEach(
+    (complaint, index) => {
 
-    const card =
-      document.createElement('div');
-
-
-    card.classList.add(
-      'complaint-item'
-    );
+      const card =
+        document.createElement('div');
 
 
-    const createdDate =
-      new Date(
-        complaint.createdAt
-      ).toLocaleString();
+      card.classList.add(
+        'complaint-item'
+      );
 
 
-    card.innerHTML = `
+      // ----------------------------------------------
+      // Date
+      // ----------------------------------------------
+
+      let createdDate =
+        'Unknown date';
+
+
+      if (complaint.createdAt) {
+
+        const date =
+          new Date(
+            complaint.createdAt
+          );
+
+
+        if (!Number.isNaN(date.getTime())) {
+
+          createdDate =
+            date.toLocaleString();
+
+        }
+
+      }
+
+
+      // ----------------------------------------------
+      // Status
+      // ----------------------------------------------
+
+      const status =
+        complaint.status ||
+        'Pending';
+
+
+      // ----------------------------------------------
+      // Complaint card
+      // ----------------------------------------------
+
+      card.innerHTML = `
 
         <div class="complaint-header">
 
-            <strong>
-                Complaint
-            </strong>
+          <strong>
+            Complaint ${index + 1}
+          </strong>
 
-            <span class="status ${getStatusClass(complaint.status)}">
-                ${escapeHtml(complaint.status)}
-            </span>
+
+          <span
+            class="status ${getStatusClass(status)}"
+          >
+            ${escapeHtml(status)}
+          </span>
 
         </div>
 
 
         <p>
-            ${escapeHtml(complaint.description)}
+          ${escapeHtml(
+            complaint.description
+          )}
         </p>
 
 
-        <small>
-            Submitted:
-            ${escapeHtml(createdDate)}
-        </small>
+        <div class="complaint-details">
 
-    `;
+          <small>
+            <strong>
+              Student:
+            </strong>
+
+            ${escapeHtml(
+              complaint.studentName || ''
+            )}
+          </small>
+
+          <br>
+
+          <small>
+            <strong>
+              Student ID:
+            </strong>
+
+            ${escapeHtml(
+              complaint.studentId || ''
+            )}
+          </small>
+
+          <br>
+
+          <small>
+            <strong>
+              Submitted:
+            </strong>
+
+            ${escapeHtml(
+              createdDate
+            )}
+          </small>
+
+        </div>
+
+      `;
 
 
-    complaintsContainer.appendChild(card);
+      complaintsContainer
+        .appendChild(card);
 
-  });
+    }
+  );
 
 }
 
@@ -351,12 +612,18 @@ function displayComplaints(complaints) {
 function getStatusClass(status) {
 
   if (status === 'Resolved') {
+
     return 'resolved';
+
   }
 
+
   if (status === 'In Progress') {
+
     return 'progress';
+
   }
+
 
   return 'pending';
 
@@ -378,3 +645,12 @@ function escapeHtml(value) {
   return div.innerHTML;
 
 }
+
+
+// ----------------------------------------------------
+// Initial page setup
+// ----------------------------------------------------
+
+loadLoggedInUser();
+
+clearMessage();
