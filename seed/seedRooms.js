@@ -1,12 +1,12 @@
 // Run with: node seed/seedRooms.js
 global.crypto = require("crypto").webcrypto;
-
+ 
 require('dotenv').config();
 const mongoose = require('mongoose');
 const Room = require('../src/models/Room');
-
+ 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/room_management';
-
+ 
 const sampleRooms = [
   {
     roomNumber: 'A-101',
@@ -19,6 +19,7 @@ const sampleRooms = [
     status: 'available',
     amenities: ['wifi', 'desk', 'wardrobe', 'attached bathroom'],
     description: 'Cozy single room with natural light and a study desk.',
+    images: ['/images/rooms/room-a101.jpg'],
   },
   {
     roomNumber: 'A-102',
@@ -31,6 +32,7 @@ const sampleRooms = [
     status: 'available',
     amenities: ['wifi', 'shared bathroom', 'bunk bed'],
     description: 'Shared double room, great for students who like company.',
+    images: ['/images/rooms/room-a102.jpg'],
   },
   {
     roomNumber: 'A-201',
@@ -43,6 +45,7 @@ const sampleRooms = [
     status: 'occupied',
     amenities: ['wifi', 'desk', 'balcony'],
     description: 'Single room with a small balcony overlooking the courtyard.',
+    images: ['/images/rooms/room-a103.jpg'],
   },
   {
     roomNumber: 'B-101',
@@ -55,6 +58,7 @@ const sampleRooms = [
     status: 'available',
     amenities: ['wifi', 'lockers', 'shared bathroom', 'common lounge'],
     description: 'Budget-friendly 6-bed dorm, popular with first-year students.',
+    images: ['/images/rooms/room-a104.jpg'],
   },
   {
     roomNumber: 'B-102',
@@ -67,6 +71,7 @@ const sampleRooms = [
     status: 'occupied',
     amenities: ['wifi', 'lockers', 'shared bathroom'],
     description: 'Fully booked 6-bed dorm.',
+    images: ['/images/rooms/room-a105.jpg'],
   },
   {
     roomNumber: 'B-205',
@@ -79,6 +84,7 @@ const sampleRooms = [
     status: 'available',
     amenities: ['wifi', 'shared bathroom', 'study table'],
     description: 'Spacious triple room, recently renovated.',
+    images: ['/images/rooms/room-a106.jpg'],
   },
   {
     roomNumber: 'C-301',
@@ -91,6 +97,7 @@ const sampleRooms = [
     status: 'available',
     amenities: ['wifi', 'kitchenette', 'private bathroom', 'air conditioning'],
     description: 'Premium suite with a small kitchenette, ideal for couples or friends.',
+    images: ['/images/rooms/room-a107.jpg'],
   },
   {
     roomNumber: 'C-302',
@@ -103,6 +110,7 @@ const sampleRooms = [
     status: 'maintenance',
     amenities: ['wifi', 'desk'],
     description: 'Currently under maintenance, plumbing being fixed.',
+    images: ['/images/rooms/room-a108.jpg'],
   },
   {
     roomNumber: 'C-401',
@@ -115,6 +123,7 @@ const sampleRooms = [
     status: 'reserved',
     amenities: ['wifi', 'private bathroom'],
     description: 'Reserved for exchange students arriving next semester.',
+    images: ['/images/rooms/room-a109.jpg'],
   },
   {
     roomNumber: 'D-101',
@@ -127,20 +136,21 @@ const sampleRooms = [
     status: 'available',
     amenities: ['wifi', 'desk', 'garden view'],
     description: 'Ground floor single room with a view of the garden.',
+    images: ['/images/rooms/room-a120.jpg'],
   },
 ];
-
+ 
 async function seed() {
   try {
     await mongoose.connect(MONGO_URI);
     console.log('Connected to MongoDB:', MONGO_URI);
-
+ 
     await Room.deleteMany({});
     console.log('Cleared existing rooms.');
-
+ 
     const inserted = await Room.insertMany(sampleRooms);
     console.log(`Inserted ${inserted.length} sample rooms.`);
-
+ 
     await mongoose.disconnect();
     console.log('Done. Disconnected.');
     process.exit(0);
@@ -149,5 +159,5 @@ async function seed() {
     process.exit(1);
   }
 }
-
+ 
 seed();
