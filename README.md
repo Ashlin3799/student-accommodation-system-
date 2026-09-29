@@ -82,7 +82,7 @@ browser with no manual API calls required.
 | Rooms | `GET /api/rooms` (supports `search`, `type`, `status`, `minPrice`, `maxPrice`, `sort`, `page`, `limit`), `GET /api/rooms/:id`, `GET /api/rooms/archived` (admin), `POST /api/rooms` (admin), `PUT /api/rooms/:id` (admin), `PATCH /api/rooms/:id/restore` (admin), `DELETE /api/rooms/:id` (admin, archives), `DELETE /api/rooms/:id/permanent` (admin) |
 | Applications | `POST /api/applications`, `GET /api/applications/:studentId`, `GET /api/applications`, `PATCH /api/applications/:id` |
 | Complaints | `POST /api/complaints`, `GET /api/complaints`, `GET /api/complaints/student/:studentId`, `GET /api/complaints/:id`, `PATCH /api/complaints/:id/status`, `PATCH /api/complaints/student/:studentId/status` |
-| Dashboard | `GET /api/dashboard/stats` (admin-only, requires a Bearer token) |
+| Dashboard | `GET /api/dashboard/stats`, `GET /api/dashboard/trends` (admin-only), `GET /api/dashboard/student` (student-only). All require a Bearer token. |
 
 ## Notes for teammates
 
@@ -494,3 +494,63 @@ public/
 ├── application.html        # Student application form and payload construct
 ├── js/adminDashboard.js    # Admin application review grid, details modal, and live stats
 └── admin/applications.html # Applications table with action controls and deletion trash bin
+
+
+
+## Reporting & Dashboard Module - Sprint 2
+
+## Overview
+
+Turns Room, Application and Complaint data into summaries for admins and
+students. MongoDB aggregation pipelines do the counting, so the server sends
+back small summaries instead of full records. The admin dashboard shows summary
+cards and charts, and each student has a personal dashboard.
+
+## Main Features
+
+- **Summary statistics:** room occupancy, and application and complaint counts by status.
+- **Trends and breakdowns:** applications and complaints per day by status, zero-filled so charts have no gaps.
+- **Charts:** two Chart.js line charts (trends) and a doughnut chart (complaint breakdown).
+- **Filtering:** date range (From / To) and category (all, rooms, applications, complaints).
+- **Refresh handling:** auto-refreshes every 30 seconds without a page reload, with a loading state and a "Last updated" time. This uses polling, not WebSockets.
+- **Student dashboard:** a student's own application counts, complaint counts and assigned room.
+
+## API Endpoints
+
+All endpoints require `Authorization: Bearer <token>`.
+
+| Method | Endpoint | Access | Query parameters |
+|--------|----------|--------|------------------|
+| GET | `/api/dashboard/stats` | Admin | `startDate`, `endDate` (YYYY-MM-DD), `category` (`all`, `rooms`, `applications`, `complaints`) |
+| GET | `/api/dashboard/trends` | Admin | `days` (default 30), `startDate`, `endDate` |
+| GET | `/api/dashboard/student` | Student | none |
+
+
+Errors are passed to the shared error handler (`middleware/errorhandler.js`),
+so failures return a consistent JSON format.
+
+## Testing
+
+Automated Jest tests with mocked models, so no MongoDB connection is needed:
+
+```bash
+npm test                          # all tests
+npx jest tests/dashboard.test.js  # dashboard tests only
+```
+
+They cover the date filter, zero-filled trend labels, summary totals and
+occupancy rate, the category filter, error handling, and the student dashboard.
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `controllers/dashboardcontroller.js` | Aggregation pipelines, trends, student summary |
+| `routes/dashboardroutes.js` | Dashboard routes with auth and role middleware |
+| `public/admin/dashboard.html` | Admin dashboard page |
+| `public/dashboard.js` | Admin dashboard: charts, filters, auto-refresh |
+| `public/student/dashboard.html` | Student dashboard page |
+| `public/student/studentDashboard.js` | Student dashboard script |
+| `tests/dashboard.test.js` | Automated dashboard tests |
+
+
