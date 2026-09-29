@@ -9,7 +9,8 @@ const {
   createRoom,
   updateRoom,
   deleteRoom,
-  restoreRoom
+  restoreRoom,
+  permanentDeleteRoom
 } = require('../controllers/roomController');
 
 const adminOnly = [authMiddleware, roleMiddleware('admin')];
@@ -24,6 +25,7 @@ router.get('/:id', getRoom);
 router.post('/', ...adminOnly, createRoom);
 router.put('/:id', ...adminOnly, updateRoom);
 router.patch('/:id/restore', ...adminOnly, restoreRoom);
+router.delete('/:id/permanent', ...adminOnly, permanentDeleteRoom);
 router.delete('/:id', ...adminOnly, deleteRoom);
 
 module.exports = router;

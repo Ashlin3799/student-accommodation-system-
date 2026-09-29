@@ -273,7 +273,8 @@ function roomCard(room, archived) {
   const badgeText = archived ? 'archived' : status;
 
   const actions = archived
-    ? `<button type="button" class="btn-restore-room" data-action="restore" data-id="${escapeHtml(room._id)}">Restore</button>`
+    ? `<button type="button" class="btn-restore-room" data-action="restore" data-id="${escapeHtml(room._id)}">Restore</button>
+    <button type="button" class="btn-delete-room" data-action="delete-permanent" data-id="${escapeHtml(room._id)}">Delete permanently</button>`
     : `<button type="button" class="btn-edit-room" data-action="edit" data-id="${escapeHtml(room._id)}">Edit</button>
        <button type="button" class="btn-delete-room" data-action="archive" data-id="${escapeHtml(room._id)}">Archive</button>`;
 
@@ -394,9 +395,10 @@ roomForm.addEventListener('submit', async (event) => {
   if (payload.occupied > payload.capacity) {
     return showFormError('Currently occupied cannot be more than capacity.');
   }
-  if (payload.images.some((url) => !isHttpUrl(url))) {
-    return showFormError('Each image must be a full http(s) URL, separated by commas.');
-  }
+  const isLocalImage = (v) => /^\/images\/rooms\/[\w.\-]+\.(jpe?g|png|webp|gif)$/i.test(v);
+if (payload.images.some((url) => !isHttpUrl(url) && !isLocalImage(url))) {
+  return showFormError('Each image must be an http(s) URL or a path like /images/rooms/room-a101.jpg');
+}
 
   const saveButton = document.getElementById('saveRoomButton');
   saveButton.disabled = true;
@@ -437,6 +439,24 @@ async function archiveRoom(roomId) {
     await loadRooms();
   } catch (error) {
     console.error('Room archive error:', error);
+    alert(error.message);
+  }
+}
+
+async function permanentlyDeleteRoom(roomId) {
+  const room = currentRooms.find((r) => r._id === roomId);
+  const label = room ? room.roomNumber : 'this room';
+
+  const confirmed = window.confirm(
+    `PERMANENTLY delete room ${label}? This cannot be undone.`
+  );
+  if (!confirmed) return;
+
+  try {
+    await api(`/api/rooms/${roomId}/permanent`, { method: 'DELETE' });
+    await loadRooms();
+  } catch (error) {
+    console.error('Room permanent delete error:', error);
     alert(error.message);
   }
 }
@@ -510,6 +530,7 @@ roomsGrid.addEventListener('click', (event) => {
   if (action === 'edit') openEditRoom(id);
   if (action === 'archive') archiveRoom(id);
   if (action === 'restore') restoreRoom(id);
+  if (action === 'delete-permanent') permanentlyDeleteRoom(id);
 });
 
 roomsPager.addEventListener('click', (event) => {
