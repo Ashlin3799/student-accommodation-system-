@@ -41,21 +41,6 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// Get a student's current status
-router.get('/:studentId', async (req, res, next) => {
-  try {
-    const application = await Application.findOne({ studentId: req.params.studentId }).sort({ createdAt: -1 });
-
-    if (!application) {
-      return res.status(404).json({ success: false, message: 'No application found for this student.' });
-    }
-
-    res.json(application);
-  } catch (err) {
-    next(err);
-  }
-});
-
 // Get all applications (for admin)
 router.get('/', async (req, res, next) => {
   try {
@@ -96,6 +81,44 @@ router.patch('/:id', async (req, res, next) => {
     }
 
     res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE Application Route
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const existing = await Application.findById(req.params.id);
+
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Application not found" });
+    }
+
+    // Decrement room occupancy if deleting an approved application
+    if (existing.status === 'Approved' && existing.roomId) {
+      await adjustRoomOccupancy(existing.roomId, -1);
+    }
+
+    await Application.findByIdAndDelete(req.params.id);
+
+    res.json({ success: true, message: "Application deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting application:", err);
+    res.status(500).json({ success: false, error: "Server error deleting application" });
+  }
+});
+
+// Get a student's current status (Placed at bottom to avoid route parameter collision)
+router.get('/:studentId', async (req, res, next) => {
+  try {
+    const application = await Application.findOne({ studentId: req.params.studentId }).sort({ createdAt: -1 });
+
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'No application found for this student.' });
+    }
+
+    res.json(application);
   } catch (err) {
     next(err);
   }

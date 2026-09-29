@@ -30,7 +30,7 @@ async function fetchApplications() {
             ? new Date(app.createdAt).toLocaleDateString()
             : "N/A";
 
-return `
+          return `
           <div class="app-card" id="app-${app._id}" style="border:1px solid #e5e7eb; padding:16px; margin-bottom:12px; border-radius:8px; background:white; position:relative; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -39,8 +39,8 @@ return `
                   rawStatus.toLowerCase() === "approved"
                     ? "background:#dcfce7; color:#15803d;"
                     : rawStatus.toLowerCase() === "rejected"
-                    ? "background:#fee2e2; color:#b91c1c;"
-                    : "background:#fef3c7; color:#b45309;"
+                      ? "background:#fee2e2; color:#b91c1c;"
+                      : "background:#fef3c7; color:#b45309;"
                 } padding:3px 10px; border-radius:12px; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.02em;">${escapeHtml(rawStatus)}</span>
               </div>
 
@@ -59,7 +59,16 @@ return `
               `
                   : ""
               }
-              <button onclick="showDetails('${app._id}')" style="margin-top:10px; width:100%; background:#14403f; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">View Details</button>
+              <div style="display: flex; gap: 8px; margin-top: 10px;">
+  <button onclick="showDetails('${app._id}')" style="flex:1; background:#14403f; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">View Details</button>
+ <button onclick="deleteApplication('${app._id}')" title="Delete Application" style="background:#475569; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:background 0.2s;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='#475569'">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+  </svg>
+</button>
+
+</div>
+
             </div>
           </div>
         `;
@@ -84,7 +93,8 @@ function showDetails(appId) {
   const rawStatus = app.status || "pending";
   const isPending = rawStatus.toLowerCase() === "pending";
   const modalBody = document.getElementById("modalBody");
-  const studentEmail = app.studentEmail || (app.user && app.user.email) || "N/A";
+  const studentEmail =
+    app.studentEmail || (app.user && app.user.email) || "N/A";
 
   modalBody.innerHTML = `
     <p><strong>Student ID:</strong> ${escapeHtml(app.studentId || app.user || "s98765432")}</p>
@@ -94,16 +104,24 @@ function showDetails(appId) {
     <p><strong>Date Submitted:</strong> ${app.createdAt ? new Date(app.createdAt).toLocaleDateString() : "N/A"}</p>
     <p><strong>Status:</strong> <span style="text-transform:capitalize;">${escapeHtml(rawStatus)}</span></p>
     
-    ${
-      isPending
-        ? `
-      <div style="margin-top: 16px; border-top: 1px solid #eee; padding-top: 12px;">
-        <button onclick="updateStatus('${app._id}', 'Approved')" style="background:#22c55e; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; margin-right:8px;">Approve Application</button>
-        <button onclick="updateStatus('${app._id}', 'Rejected')" style="background:#ef4444; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">Reject Application</button>
-      </div>
-    `
-        : ""
-    }
+   <div style="margin-top: 16px; border-top: 1px solid #eee; padding-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+  ${
+    isPending
+      ? `
+    <button onclick="updateStatus('${app._id}', 'Approved')" style="background:#22c55e; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:600;">Approve</button>
+    <button onclick="updateStatus('${app._id}', 'Rejected')" style="background:#ef4444; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:600;">Reject</button>
+  `
+      : ""
+  }
+<button onclick="deleteApplication('${app._id}')" title="Delete Application" style="background:#475569; color:white; border:none; padding:8px 14px; border-radius:4px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-weight:600; transition:background 0.2s;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='#475569'">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+  </svg>
+  Delete
+</button>
+
+</div>
+
   `;
 
   document.getElementById("detailsModal").style.display = "flex";
@@ -143,6 +161,31 @@ async function updateStatus(applicationId, newStatus) {
   } catch (err) {
     console.error("Error updating status:", err);
     alert("Server error updating status.");
+  }
+}
+
+
+async function deleteApplication(applicationId) {
+  if (!confirm("Are you sure you want to delete this application?")) return;
+
+  try {
+    const response = await fetch(`/api/applications/${applicationId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      alert("Application deleted successfully!");
+      fetchApplications(); // Refresh table/list
+    } else {
+      alert(result.error || "Failed to delete application");
+    }
+  } catch (err) {
+    console.error("Error deleting application:", err);
+    alert("Server error deleting application.");
   }
 }
 
