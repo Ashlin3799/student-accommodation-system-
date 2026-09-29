@@ -218,11 +218,11 @@ body {
   gap: 1rem;
   margin-top: 20px;
 }
+
 /* ==========================================================================
    MODAL DISPLAY & ROOM NUMBER SPACING FIXES
    ========================================================================== */
 
-/* Force modal display on edit button click */
 #roomModal.is-visible,
 #roomModal[style*="display: flex"] {
   display: flex !important;
@@ -231,7 +231,6 @@ body {
   z-index: 9999 !important;
 }
 
-/* Fix Room Number Cutoff / Character Spacing */
 .room-number {
   font-family: 'IBM Plex Mono', 'Courier New', monospace !important;
   font-size: 0.95rem !important;
@@ -240,7 +239,6 @@ body {
   white-space: nowrap !important;
 }
 
-/* Status Pill Padding & Text Display */
 .status-tag {
   font-size: 0.72rem !important;
   padding: 0.2rem 0.55rem !important;
@@ -249,8 +247,6 @@ body {
   white-space: nowrap !important;
   display: inline-block !important;
 }
-
-
 
 #roomModal[style*="display: flex"],
 .modal[style*="display: flex"] {
@@ -267,15 +263,6 @@ body {
   background: #ffffff !important;
   z-index: 100000 !important;
   position: relative !important;
-}
-
-/* ==========================================================================
-   MODAL FORM LAYOUT FIX
-   ========================================================================== */
-
-/* Make modal container wider and neatly padded */
-#roomModal .modal-content {
-  background: #ffffff !important;
   padding: 28px !important;
   border-radius: 12px !important;
   width: 90% !important;
@@ -289,7 +276,6 @@ body {
   margin-bottom: 1rem !important;
 }
 
-/* Two-column form layout */
 #roomModal .room-form-grid {
   display: grid !important;
   grid-template-columns: repeat(2, 1fr) !important;
@@ -300,7 +286,6 @@ body {
   grid-column: span 2 !important;
 }
 
-/* Input fields full width inside their grid cell */
 #roomModal input,
 #roomModal select,
 #roomModal textarea {
@@ -316,13 +301,13 @@ body {
   resize: vertical !important;
 }
 
-/* Modal action buttons */
 #roomModal .form-actions {
   display: flex !important;
   justify-content: flex-end !important;
   gap: 10px !important;
   margin-top: 20px !important;
 }
+
 #roomModal .close-btn {
   position: absolute !important;
   top: 16px !important;
@@ -337,10 +322,203 @@ body {
   color: #0f172a !important;
 }
 
-/* Image URLs helper text styling */
 #roomModal .form-hint {
   font-size: 0.78rem !important;
   color: #64748b !important;
   margin-top: 4px !important;
   line-height: 1.35 !important;
+}
+
+/* ==========================================================================
+   4-IN-A-ROW GRID & ENHANCED ACTION BUTTON COLORS
+   ========================================================================== */
+
+main.main-content #applications-list, 
+main.main-content .applications-list {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 1.25rem !important;
+  align-items: stretch !important;
+  margin-top: 1rem !important;
+  width: 100% !important;
+}
+
+/* Card Container */
+main.main-content #applications-list > div, 
+main.main-content .applications-list .application-card, 
+main.main-content .applications-list .card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  padding: 1.25rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  margin-bottom: 0 !important;
+}
+
+/* Card Header */
+main.main-content #applications-list h3, 
+main.main-content #applications-list h4, 
+main.main-content .applications-list h3, 
+main.main-content .applications-list h4 {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  margin: 0 0 0.85rem 0 !important;
+  padding-bottom: 0.6rem !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+/* Text Key-Value Layout */
+main.main-content #applications-list p, 
+main.main-content .applications-list p {
+  font-size: 0.83rem !important;
+  color: #64748b !important;
+  margin: 0 0 0.45rem 0 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+main.main-content #applications-list p strong, 
+main.main-content .applications-list p strong {
+  color: #1e293b !important;
+  font-weight: 600 !important;
+}
+
+/* Status Badges */
+main.main-content .badge, 
+main.main-content .status-tag {
+  display: inline-block !important;
+  padding: 4px 10px !important;
+  border-radius: 12px !important;
+  font-weight: bold !important;
+  font-size: 12px !important;
+  color: #ffffff !important;
+  text-transform: uppercase !important;
+}
+
+main.main-content .badge.Pending, 
+main.main-content .badge.pending, 
+main.main-content .badge[data-status="Pending"] {
+  background: #e0a800 !important;
+  color: #ffffff !important;
+}
+
+main.main-content .badge.Approved, 
+main.main-content .badge.approved, 
+main.main-content .badge[data-status="Approved"] {
+  background: #28a745 !important;
+  color: #ffffff !important;
+}
+
+main.main-content .badge.Rejected, 
+main.main-content .badge.rejected, 
+main.main-content .badge[data-status="Rejected"] {
+  background: #dc3545 !important;
+  color: #ffffff !important;
+}
+
+/* Base Action Buttons */
+main.main-content #applications-list button, 
+main.main-content .applications-list button {
+  width: 100% !important;
+  margin-top: 0.4rem !important;
+  padding: 8px 14px !important;
+  border: none !important;
+  border-radius: 5px !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  transition: background 0.15s ease !important;
+}
+
+/* Neutral Action Button (View Details) */
+main.main-content .view-details-btn,
+main.main-content button.view-details,
+main.main-content button[onclick*="Modal"],
+main.main-content button[onclick*="details"] {
+  background: #134e4a !important;
+}
+
+main.main-content .view-details-btn:hover,
+main.main-content button.view-details:hover,
+main.main-content button[onclick*="Modal"]:hover,
+main.main-content button[onclick*="details"]:hover {
+  background: #0f3e3b !important;
+}
+
+/* GREEN ACCEPT / APPROVE BUTTONS */
+main.main-content .approve-btn, 
+main.main-content .btn-approve,
+main.main-content .accept-btn,
+main.main-content button.approve,
+main.main-content button.accept,
+main.main-content button[onclick*="Approved"],
+main.main-content button[onclick*="approved"],
+main.main-content button[onclick*="Accept"],
+main.main-content button[onclick*="accept"] {
+  background: #28a745 !important;
+  color: #ffffff !important;
+}
+
+main.main-content .approve-btn:hover, 
+main.main-content .btn-approve:hover,
+main.main-content .accept-btn:hover,
+main.main-content button.approve:hover,
+main.main-content button.accept:hover,
+main.main-content button[onclick*="Approved"]:hover,
+main.main-content button[onclick*="approved"]:hover,
+main.main-content button[onclick*="Accept"]:hover,
+main.main-content button[onclick*="accept"]:hover {
+  background: #1e7e34 !important;
+}
+
+/* RED REJECT BUTTONS */
+main.main-content .reject-btn, 
+main.main-content .btn-reject,
+main.main-content button.reject,
+main.main-content button[onclick*="Rejected"],
+main.main-content button[onclick*="rejected"] {
+  background: #dc3545 !important;
+  color: #ffffff !important;
+}
+
+main.main-content .reject-btn:hover, 
+main.main-content .btn-reject:hover,
+main.main-content button.reject:hover,
+main.main-content button[onclick*="Rejected"]:hover,
+main.main-content button[onclick*="rejected"]:hover {
+  background: #b02a37 !important;
+}
+
+/* Responsive Grid Breakpoints */
+@media (max-width: 1200px) {
+  main.main-content #applications-list, 
+  main.main-content .applications-list {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  main.main-content #applications-list, 
+  main.main-content .applications-list {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+main.main-content .card-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  margin-top: 0.5rem !important;
+  width: 100% !important;
+}
+
+main.main-content .card-actions button {
+  margin-top: 0 !important;
+  width: 100% !important;
 }
