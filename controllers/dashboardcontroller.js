@@ -287,15 +287,6 @@ exports.getDashboardTrends = async (req, res, next) => {
   }
 };
 
-
-// ---------------------------------------------------------------------------
-// Student dashboard: stats for the logged-in student only.
-//
-// Applications store the student's email (taken from their account at apply
-// time), so that is the reliable link between a login and their applications.
-// Complaints only store the free-typed studentId, so we use the studentId(s)
-// found on the student's own applications to locate their complaints.
-// ---------------------------------------------------------------------------
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const caseInsensitiveExact = (value) =>
   new RegExp(`^${escapeRegex(String(value).trim())}$`, 'i');
@@ -311,8 +302,6 @@ exports.getStudentDashboard = async (req, res, next) => {
       });
     }
 
-    // Match on the account email OR the account name (both case-insensitive),
-    // because the application form lets students type their own name/ID.
     const applicationIdentity = [
       { studentEmail: caseInsensitiveExact(user.email) }
     ];
@@ -356,7 +345,6 @@ exports.getStudentDashboard = async (req, res, next) => {
       });
     }
 
-    // Room: taken from the student's most recent approved application.
     let room = null;
     const approved = applicationDocs.find(
       (app) => String(app.status).toLowerCase() === 'approved'

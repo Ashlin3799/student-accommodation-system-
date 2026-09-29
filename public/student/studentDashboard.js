@@ -14,12 +14,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Keep the numbers fresh without the student pressing Refresh
     setInterval(function () {
         loadStudentDashboard({ silent: true });
     }, STUDENT_DASHBOARD_REFRESH_MS);
 
-    // Refresh when the student returns to this tab
     document.addEventListener("visibilitychange", function () {
         if (!document.hidden) {
             loadStudentDashboard({ silent: true });
@@ -125,7 +123,6 @@ function renderStudentDashboard(data) {
     const student = data.student || {};
     const room = data.room || null;
 
-    // Student name (keep the "Student" placeholder if the API sends none)
     if (student.name) {
         setText("studentName", student.name);
         setText("welcomeName", student.name);
@@ -154,7 +151,6 @@ function renderStudentDashboard(data) {
 }
 
 
-// Numeric counters: missing values show as 0
 function setCount(id, value) {
     setText(id, value === undefined || value === null || value === "" ? 0 : value);
 }
