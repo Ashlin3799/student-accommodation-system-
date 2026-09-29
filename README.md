@@ -458,3 +458,39 @@ Clive's Sprint 2 complaint work includes:
 | Complaint module testing | 5 hours | Testing / evidence |
 
 These tasks extend the Sprint 1 complaint functionality into a complete student-to-admin complaint-management workflow.
+
+
+# Application Management Module — Sprint 2
+
+This module handles student accommodation application flows, admin application review workflows, dynamic status updates, and cascading room availability sync.
+
+## Overview & Sprint 2 Features
+- **Student Email Integration:** Added `studentEmail` to the Mongoose `Application` model, ensuring student email credentials are saved to MongoDB upon submission and displayed in administrative details modals.
+- **Student-Scoped Status Views:** Configured `GET /api/applications/:studentId` to fetch student-specific metric counts (Total, Pending, Approved, Rejected) and room status indicators directly.
+- **Admin Review Pipeline & Modals:** Built real-time status management (`PATCH /api/applications/:id`) with support for interactive details modals (`showDetails`) displaying complete student profiles.
+- **Application Deletion & Cascading Occupancy:** Enabled permanent deletion (`DELETE /api/applications/:id`) from both the dashboard and applications table (`applications.html`), integrated with `adjustRoomOccupancy` to automatically decrement room occupancy counts when an approved application is removed.
+
+## API Endpoints
+| Method | Endpoint | Access | Purpose |
+|---|---|---|---|
+| `POST` | `/api/applications` | Student | Submit a new accommodation application (includes `studentEmail`) |
+| `GET` | `/api/applications/:studentId` | Student | Retrieve applications and metrics scoped to a specific student |
+| `GET` | `/api/applications` | Admin | Retrieve all submitted applications |
+| `PATCH` | `/api/applications/:id` | Admin | Update application status (`Pending`, `Approved`, `Rejected`) |
+| `DELETE` | `/api/applications/:id` | Admin | Delete application and automatically adjust room capacity |
+
+## Key Files
+```text
+models/
+└── Application.js          # Mongoose schema (includes studentEmail field)
+
+routes/
+└── applications.js         # API endpoints and parameter route order isolation
+
+controllers/
+└── applicationController.js # Status transition handlers and room occupancy sync
+
+public/
+├── application.html        # Student application form and payload construct
+├── js/adminDashboard.js    # Admin application review grid, details modal, and live stats
+└── admin/applications.html # Applications table with action controls and deletion trash bin
