@@ -354,3 +354,13 @@
     height: 200px;
   }
 }
+/* Prevent dashboard.css from adding unwanted body/container outer spacing */
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.dashboard-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}
