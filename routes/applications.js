@@ -6,9 +6,9 @@ const { adjustRoomOccupancy } = require('../src/controllers/roomController');
 // Submit a new application
 router.post("/", async (req, res, next) => {
   try {
-    const { studentId, studentName, roomId, roomTitle } = req.body;
+    const { studentId, studentName, studentEmail, roomId, roomTitle } = req.body;
 
-    if (!studentId || !studentName || !roomId || !roomTitle) {
+    if (!studentId || !studentName || !studentEmail || !roomId || !roomTitle) {
       return res
         .status(400)
         .json({ success: false, message: "All fields are required." });
@@ -29,6 +29,7 @@ router.post("/", async (req, res, next) => {
     const newApplication = new Application({
       studentId,
       studentName,
+      studentEmail,
       roomId,
       roomTitle,
     });

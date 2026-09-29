@@ -30,30 +30,37 @@ async function fetchApplications() {
             ? new Date(app.createdAt).toLocaleDateString()
             : "N/A";
 
-          return `
-          <div class="app-card" id="app-${app._id}" style="border:1px solid #e5e7eb; padding:16px; margin-bottom:12px; border-radius:8px; background:white;">
-            <h3 style="margin-top:0;">${escapeHtml(studentName)}</h3>
-            <p><strong>Room:</strong> ${escapeHtml(roomName)}</p>
-            <p><strong>Date Submitted:</strong> ${dateStr}</p>
-       <p><strong>Status:</strong> <span style="${
-         rawStatus.toLowerCase() === "approved"
-           ? "background:#dcfce7; color:#15803d;"
-           : rawStatus.toLowerCase() === "rejected"
-             ? "background:#fee2e2; color:#b91c1c;"
-             : "background:#fef3c7; color:#b45309;"
-       } padding:3px 10px; border-radius:12px; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.02em;">${escapeHtml(rawStatus)}</span></p>
-   ${
-     isPending
-       ? `
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;"> 
-    <button onclick="updateStatus('${app._id}', 'Approved')" style="background:#28a745; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">Approve</button> 
-    <button onclick="updateStatus('${app._id}', 'Rejected')" style="background:#dc3545; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">Reject</button> 
-</div> 
-`
-       : ""
-   }
+return `
+          <div class="app-card" id="app-${app._id}" style="border:1px solid #e5e7eb; padding:16px; margin-bottom:12px; border-radius:8px; background:white; position:relative; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0; font-size:1.1rem; font-weight:700;">${escapeHtml(studentName)}</h3>
+                <span style="${
+                  rawStatus.toLowerCase() === "approved"
+                    ? "background:#dcfce7; color:#15803d;"
+                    : rawStatus.toLowerCase() === "rejected"
+                    ? "background:#fee2e2; color:#b91c1c;"
+                    : "background:#fef3c7; color:#b45309;"
+                } padding:3px 10px; border-radius:12px; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.02em;">${escapeHtml(rawStatus)}</span>
+              </div>
 
-            <button onclick="showDetails('${app._id}')" style="margin-top:10px; background:#14403f; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">View Details</button>
+              <p style="margin:4px 0;"><strong>Room:</strong> ${escapeHtml(roomName)}</p>
+              <p style="margin:4px 0;"><strong>Date Submitted:</strong> ${dateStr}</p>
+            </div>
+
+            <div>
+              ${
+                isPending
+                  ? `
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;"> 
+                  <button onclick="updateStatus('${app._id}', 'Approved')" style="background:#28a745; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">Approve</button> 
+                  <button onclick="updateStatus('${app._id}', 'Rejected')" style="background:#dc3545; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">Reject</button> 
+              </div> 
+              `
+                  : ""
+              }
+              <button onclick="showDetails('${app._id}')" style="margin-top:10px; width:100%; background:#14403f; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">View Details</button>
+            </div>
           </div>
         `;
         })
@@ -77,10 +84,12 @@ function showDetails(appId) {
   const rawStatus = app.status || "pending";
   const isPending = rawStatus.toLowerCase() === "pending";
   const modalBody = document.getElementById("modalBody");
+  const studentEmail = app.studentEmail || (app.user && app.user.email) || "N/A";
 
   modalBody.innerHTML = `
     <p><strong>Student ID:</strong> ${escapeHtml(app.studentId || app.user || "s98765432")}</p>
     <p><strong>Student Name:</strong> ${escapeHtml(app.studentName || app.name || "Jane Doe")}</p>
+    <p><strong>Student Email:</strong> ${escapeHtml(studentEmail)}</p>
     <p><strong>Requested Room:</strong> ${escapeHtml(app.roomTitle || app.room || "Standard Room")}</p>
     <p><strong>Date Submitted:</strong> ${app.createdAt ? new Date(app.createdAt).toLocaleDateString() : "N/A"}</p>
     <p><strong>Status:</strong> <span style="text-transform:capitalize;">${escapeHtml(rawStatus)}</span></p>
