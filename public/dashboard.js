@@ -23,10 +23,47 @@ function buildTrendsQuery({ startDate, endDate }) {
   return query ? `?${query}` : '';
 }
 
-async function loadDashboard() {
+
+let isDashboardLoading = false;
+
+let dashboardAbortController = null;
+
+function setDashboardLoading(isLoading) {
+  isDashboardLoading = isLoading;
+
+  const refreshButton = document.querySelector('#refreshDashboardBtn');
+  const container = document.querySelector('.dashboard-container');
+
+  if (refreshButton) {
+    refreshButton.disabled = isLoading;
+    refreshButton.textContent = isLoading ? 'Refreshing…' : 'Refresh';
+  }
+
+  if (container) {
+    container.classList.toggle('is-loading', isLoading);
+  }
+}
+
+function updateLastUpdatedLabel() {
+  const lastUpdated = document.querySelector('#lastUpdated');
+  if (lastUpdated) {
+    lastUpdated.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+  }
+}
+
+async function loadDashboard({ silent = false } = {}) {
+  if (isDashboardLoading) return;
+
   const message = document.querySelector('#dashboardMessage');
 
-  if (message) {
+  if (dashboardAbortController) {
+    dashboardAbortController.abort();
+  }
+  dashboardAbortController = new AbortController();
+
+  setDashboardLoading(true);
+
+  if (message && !silent) {
     message.textContent = 'Loading dashboard...';
   }
 
@@ -39,7 +76,8 @@ async function loadDashboard() {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
-      }
+      },
+      signal: dashboardAbortController.signal
     });
 
     const result = await response.json();
@@ -52,16 +90,22 @@ async function loadDashboard() {
 
     renderDashboard(result.data);
     loadTrends(buildTrendsQuery(filters));
+    updateLastUpdatedLabel();
 
     if (message) {
       message.textContent = 'Dashboard updated successfully.';
     }
   } catch (error) {
+
+    if (error.name === 'AbortError') return;
+
     console.error('Dashboard error:', error);
 
     if (message) {
       message.textContent = error.message;
     }
+  } finally {
+    setDashboardLoading(false);
   }
 }
 
@@ -92,6 +136,7 @@ function renderDashboard(data) {
   }
 }
 
+
 const dashboardCharts = {
   applicationsTrend: null,
   complaintsTrend: null,
@@ -110,20 +155,35 @@ async function loadTrends(queryString = '') {
       }
     });
 
-    const result = await response.json();
+    let result = null;
+    try {
+      result = await response.json();
+    } catch (parseError) {
+      // Non-JSON body, e.g. an HTML "Cannot GET" page from a stale server
+    }
 
-    if (!response.ok) {
-      throw new Error(result.message || 'Unable to load dashboard trends');
+    if (!response.ok || !result) {
+      throw new Error(
+        (result && result.message) ||
+          `HTTP ${response.status} from /api/dashboard/trends`
+      );
     }
 
     renderTrendCharts(result.data);
   } catch (error) {
     console.error('Dashboard trends error:', error);
+
+    const message = document.querySelector('#dashboardMessage');
+    if (message) {
+      message.textContent = `Charts unavailable: ${error.message}`;
+    }
   }
 }
 
 function renderTrendCharts(data) {
-  if (typeof Chart === 'undefined') return;
+  if (typeof Chart === 'undefined') {
+    throw new Error('Chart.js did not load (check the CDN script tag and your internet connection)');
+  }
 
   renderLineChart(
     'applicationsTrendChart',
@@ -232,6 +292,12 @@ function setupDashboard() {
   }
 
   loadDashboard();
+
+
+  const AUTO_REFRESH_INTERVAL_MS = 30000;
+  setInterval(() => {
+    loadDashboard({ silent: true });
+  }, AUTO_REFRESH_INTERVAL_MS);
 }
 
 document.addEventListener('DOMContentLoaded', setupDashboard);
