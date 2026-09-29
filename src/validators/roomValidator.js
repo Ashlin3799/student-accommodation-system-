@@ -26,6 +26,9 @@ const isHttpUrl = (value) => {
     return false;
   }
 };
+const isImageRef = (value) =>
+  isHttpUrl(value) ||
+  (typeof value === 'string' && /^\/images\/rooms\/[\w.\-]+\.(jpe?g|png|webp|gif)$/i.test(value));
 
 function validateRoom(body = {}, { partial = false } = {}) {
   const errors = [];
@@ -92,8 +95,8 @@ function validateRoom(body = {}, { partial = false } = {}) {
     const ok =
       Array.isArray(body.images) &&
       body.images.length <= 10 &&
-      body.images.every(isHttpUrl);
-    if (!ok) errors.push('images must be a list of up to 10 valid http(s) URLs');
+      body.images.every(isImageRef);
+    if (!ok) errors.push('images must be up to 10 http(s) URLs or /images/rooms/ file paths');
   }
 
   if (has('description') && (typeof body.description !== 'string' || body.description.length > 1000)) {
