@@ -4,8 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manage Rooms - Admin</title>
-  <link rel="stylesheet" href="/css/admin.css">
+
+  <link rel="stylesheet" href="/styles.css" />
+
+  <link rel="stylesheet" href="/css/admin.css" />
 </head>
+
 <body>
   <div class="dashboard-container">
     <!-- Sidebar -->
@@ -69,20 +73,22 @@
             <option value="price_desc">Price: high to low</option>
           </select>
           <button type="button" class="btn btn-ghost" id="clearFiltersButton">Clear filters</button>
-        </div>
+          <button type="button" class="btn btn-ghost btn-archive-toggle" id="archivedToggle">View archived</button>
+          </div>
       </section>
 
       <p id="roomsMessage" class="rooms-status-message">Loading rooms...</p>
 
       <section class="admin-room-grid" id="roomsGrid"></section>
+       <nav class="rooms-pager" id="roomsPager" aria-label="Room pages" hidden></nav>
     </main>
   </div>
 
   <!-- Add / Edit Room Modal -->
-  <div id="roomModal" class="modal room-form-modal" style="display: none;">
-    <div class="modal-content">
-      <span class="close-btn" id="closeRoomModal">&times;</span>
-      <h2 id="roomModalTitle">Add Room</h2>
+<div id="roomModal" class="modal room-form-modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close-btn" id="closeRoomModal">&times;</span>
+    <h2 id="roomModalTitle">Add Room</h2>
 
       <form id="roomForm">
         <input type="hidden" id="roomId" />

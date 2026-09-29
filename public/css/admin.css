@@ -1,34 +1,47 @@
+/* ==========================================================================
+   ADMIN PORTAL SCAFFOLDING
+   ========================================================================== */
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+}
+
+body {
+  background: #f8fafc;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
 }
 
 .dashboard-container {
   display: flex;
   min-height: 100vh;
+  width: 100%;
 }
 
-/* Sidebar Styling */
+/* SIDEBAR STYLING */
 .sidebar {
   width: 240px;
+  min-width: 240px;
   height: 100vh;
   position: sticky;
+  top: 0;
   background: #1e293b;
   color: #fff;
   padding: 20px;
-  top: 0;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  z-index: 10;
 }
 
 .sidebar h2 {
-  margin-bottom: 5px;
   font-size: 1.2rem;
-  padding-bottom: 5px;
+  color: #ffffff;
+  margin-bottom: 5px;
 }
 
 .sidebar #adminName {
@@ -41,20 +54,33 @@
 
 .sidebar ul {
   list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .sidebar li {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .sidebar a {
+  display: block;
   color: #cbd5e1;
   text-decoration: none;
   font-weight: 500;
+  font-size: 14.5px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.sidebar a:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .sidebar a.active {
   color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
   font-weight: bold;
 }
 
@@ -63,7 +89,7 @@
   color: white;
   border: none;
   padding: 10px 15px;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
   width: 100%;
@@ -73,11 +99,12 @@
   background: #dc2626;
 }
 
-/* Main Content Area */
+/* MAIN CONTENT AREA */
 .main-content {
   flex: 1;
   padding: 30px;
   background: #f8fafc;
+  min-width: 0;
 }
 
 .dashboard-header {
@@ -107,461 +134,391 @@
   font-weight: 600;
 }
 
-.dashboard-section {
-  margin-bottom: 30px;
-}
-
-.dashboard-section h3, .dashboard-section h2 {
-  font-size: 1.2rem;
-  color: #1e293b;
-  margin-bottom: 12px;
-}
-
-/* Grid Layout for Stats Cards */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-}
-
-.stat-card {
-  background: white;
-  padding: 18px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.stat-card h4 {
-  font-size: 0.9rem;
-  color: #64748b;
-  margin-bottom: 6px;
-}
-
-.stat-value {
-  font-size: 1.6rem;
-  font-weight: bold;
-  color: #2563eb;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.stat-card p {
-  font-size: 0.8rem;
-  color: #94a3b8;
-}
-
-/* Application Card Styling */
-.app-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  padding: 16px;
-  margin-bottom: 12px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.app-card h3 {
-  font-size: 1.1rem;
-  color: #1e293b;
-  margin-bottom: 8px;
-}
-
-.app-card p {
-  margin-bottom: 6px;
-  color: #475569;
-  font-size: 0.95rem;
-}
-
-.badge-pending {
-  background: #fef3c7;
-  color: #d97706;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-
-.badge-approved {
-  background: #dcfce7;
-  color: #15803d;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-
-.badge-rejected {
-  background: #fee2e2;
-  color: #b91c1c;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-
-/* Modal Styling */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 24px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 500px;
-  position: relative;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.close-btn {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  font-size: 24px;
-  font-weight: bold;
-  cursor: pointer;
-  color: #666;
-}
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-}
-
-/* ==========================================
-   ROOM MANAGEMENT — TOOLBAR
-========================================== */
-
-.rooms-status-message {
-  color: #64748b;
-  font-size: 0.9rem;
-  margin-bottom: 14px;
-}
-
+/* TOOLBAR & FILTERS */
 .rooms-toolbar {
-  background: white;
+  background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .rooms-toolbar-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
 }
 
-.rooms-toolbar-row + .rooms-toolbar-row {
-  margin-top: 10px;
-}
-
-.rooms-toolbar input,
+.rooms-toolbar input[type="text"],
+.rooms-toolbar input[type="number"],
 .rooms-toolbar select {
-  font-family: inherit;
-  font-size: 0.9rem;
-  background: #fff;
-  color: #0f172a;
-  border: 1px solid #e2e8f0;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
   border-radius: 6px;
-  padding: 8px 10px;
+  font-size: 14px;
+  background: #fff;
+  color: #1e293b;
 }
 
-.rooms-toolbar #roomSearch {
-  flex: 1 1 220px;
-  min-width: 180px;
+.rooms-toolbar input[type="text"] {
+  flex: 1;
+  min-width: 200px;
 }
-
-.rooms-toolbar select { min-width: 130px; cursor: pointer; }
-.rooms-toolbar input[type="number"] { width: 100px; }
 
 .toolbar-label {
+  font-size: 14px;
   color: #64748b;
-  font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  font-family: inherit;
-  transition: background 0.15s ease, opacity 0.15s ease;
+  transition: all 0.2s ease;
 }
 
-.btn-primary { background: #2563eb; color: white; }
-.btn-primary:hover { background: #1d4ed8; }
+.btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
 
 .btn-ghost {
   background: transparent;
-  color: #2563eb;
-  border: 1px solid #2563eb;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
 }
-.btn-ghost:hover { background: #eff6ff; }
+
+.btn-ghost:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
 
 .btn-add-room {
   margin-left: auto;
 }
 
-/* ==========================================
-   ROOM MANAGEMENT — CARD GRID
-========================================== */
-
-.admin-room-grid {
+/* ROOM GRID CONTAINER */
+.admin-room-grid,
+#roomsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 18px;
+  gap: 1rem;
+  margin-top: 20px;
 }
 
-.admin-room-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  display: flex;
-  flex-direction: column;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+/* ==========================================================================
+   MODAL DISPLAY & ROOM NUMBER SPACING FIXES
+   ========================================================================== */
+
+#roomModal.is-visible,
+#roomModal[style*="display: flex"] {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 9999 !important;
 }
 
-.admin-room-card:hover {
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
-  transform: translateY(-2px);
+.room-number {
+  font-family: 'IBM Plex Mono', 'Courier New', monospace !important;
+  font-size: 0.95rem !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  white-space: nowrap !important;
 }
 
-.room-media {
-  position: relative;
-  height: 150px;
-  width: 100%;
-  overflow: hidden;
-  background: #e2e8f0;
+.status-tag {
+  font-size: 0.72rem !important;
+  padding: 0.2rem 0.55rem !important;
+  border-radius: 999px !important;
+  text-transform: capitalize !important;
+  white-space: nowrap !important;
+  display: inline-block !important;
 }
 
-.room-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+#roomModal[style*="display: flex"],
+.modal[style*="display: flex"] {
+  display: flex !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  background: rgba(15, 23, 42, 0.6) !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-.room-media-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+#roomModal .modal-content {
+  background: #ffffff !important;
+  z-index: 100000 !important;
+  position: relative !important;
+  padding: 28px !important;
+  border-radius: 12px !important;
+  width: 90% !important;
+  max-width: 580px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
 }
 
-.room-media-placeholder svg {
-  width: 42px;
-  height: 42px;
-  opacity: 0.85;
+#roomModal h2 {
+  font-size: 1.25rem !important;
+  color: #0f172a !important;
+  margin-bottom: 1rem !important;
 }
 
-.room-media-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: capitalize;
-  padding: 3px 10px;
-  border-radius: 999px;
-  color: white;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+#roomModal .room-form-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 12px 16px !important;
 }
 
-.room-status-available   { background: #16a34a; }
-.room-status-occupied    { background: #dc2626; }
-.room-status-reserved    { background: #d97706; }
-.room-status-maintenance { background: #64748b; }
-
-.room-card-body {
-  padding: 14px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
+#roomModal .form-field-full {
+  grid-column: span 2 !important;
 }
 
-.room-card-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
+#roomModal input,
+#roomModal select,
+#roomModal textarea {
+  width: 100% !important;
+  padding: 8px 12px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  font-size: 0.9rem !important;
 }
 
-.room-card-number {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #0f172a;
+#roomModal textarea {
+  min-height: 70px !important;
+  resize: vertical !important;
 }
 
-.room-card-type {
-  font-size: 0.75rem;
-  color: #64748b;
-  text-transform: capitalize;
-  background: #f1f5f9;
-  border-radius: 999px;
-  padding: 2px 9px;
+#roomModal .form-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  margin-top: 20px !important;
 }
 
-.room-card-location {
-  font-size: 0.83rem;
-  color: #64748b;
+#roomModal .close-btn {
+  position: absolute !important;
+  top: 16px !important;
+  right: 20px !important;
+  font-size: 22px !important;
+  color: #64748b !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
 }
 
-.room-card-desc {
-  font-size: 0.83rem;
-  color: #475569;
-  line-height: 1.4;
+#roomModal .close-btn:hover {
+  color: #0f172a !important;
 }
 
-.room-card-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  border-top: 1px solid #f1f5f9;
-  padding-top: 8px;
-  margin-top: auto;
+#roomModal .form-hint {
+  font-size: 0.78rem !important;
+  color: #64748b !important;
+  margin-top: 4px !important;
+  line-height: 1.35 !important;
 }
 
-.room-card-price {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #0f172a;
+/* ==========================================================================
+   4-IN-A-ROW GRID & ENHANCED ACTION BUTTON COLORS
+   ========================================================================== */
+
+main.main-content #applications-list, 
+main.main-content .applications-list {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 1.25rem !important;
+  align-items: stretch !important;
+  margin-top: 1rem !important;
+  width: 100% !important;
 }
 
-.room-card-price span {
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: #94a3b8;
+/* Card Container */
+main.main-content #applications-list > div, 
+main.main-content .applications-list .application-card, 
+main.main-content .applications-list .card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  padding: 1.25rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  margin-bottom: 0 !important;
 }
 
-.room-card-occupancy {
-  font-size: 0.8rem;
-  color: #64748b;
+/* Card Header */
+main.main-content #applications-list h3, 
+main.main-content #applications-list h4, 
+main.main-content .applications-list h3, 
+main.main-content .applications-list h4 {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  margin: 0 0 0.85rem 0 !important;
+  padding-bottom: 0.6rem !important;
+  border-bottom: 1px solid #f1f5f9 !important;
 }
 
-.room-card-amenities {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+/* Text Key-Value Layout */
+main.main-content #applications-list p, 
+main.main-content .applications-list p {
+  font-size: 0.83rem !important;
+  color: #64748b !important;
+  margin: 0 0 0.45rem 0 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
 }
 
-.room-card-amenities span {
-  font-size: 0.7rem;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  padding: 1px 6px;
+main.main-content #applications-list p strong, 
+main.main-content .applications-list p strong {
+  color: #1e293b !important;
+  font-weight: 600 !important;
 }
 
-.room-card-actions {
-  display: flex;
-  gap: 8px;
-  padding: 0 16px 16px;
+/* Status Badges */
+main.main-content .badge, 
+main.main-content .status-tag {
+  display: inline-block !important;
+  padding: 4px 10px !important;
+  border-radius: 12px !important;
+  font-weight: bold !important;
+  font-size: 12px !important;
+  color: #ffffff !important;
+  text-transform: uppercase !important;
 }
 
-.room-card-actions button {
-  flex: 1;
-  padding: 7px 0;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.85rem;
+main.main-content .badge.Pending, 
+main.main-content .badge.pending, 
+main.main-content .badge[data-status="Pending"] {
+  background: #e0a800 !important;
+  color: #ffffff !important;
 }
 
-.btn-edit-room { background: #eff6ff; color: #2563eb; }
-.btn-edit-room:hover { background: #dbeafe; }
-
-.btn-delete-room { background: #fef2f2; color: #dc2626; }
-.btn-delete-room:hover { background: #fee2e2; }
-
-/* ==========================================
-   ROOM FORM MODAL
-========================================== */
-
-.room-form-modal .modal-content {
-  max-width: 640px;
-  max-height: 88vh;
-  overflow-y: auto;
+main.main-content .badge.Approved, 
+main.main-content .badge.approved, 
+main.main-content .badge[data-status="Approved"] {
+  background: #28a745 !important;
+  color: #ffffff !important;
 }
 
-.room-form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 14px;
+main.main-content .badge.Rejected, 
+main.main-content .badge.rejected, 
+main.main-content .badge[data-status="Rejected"] {
+  background: #dc3545 !important;
+  color: #ffffff !important;
 }
 
-.room-form-grid .form-field-full {
-  grid-column: 1 / -1;
+/* Base Action Buttons */
+main.main-content #applications-list button, 
+main.main-content .applications-list button {
+  width: 100% !important;
+  margin-top: 0.4rem !important;
+  padding: 8px 14px !important;
+  border: none !important;
+  border-radius: 5px !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  transition: background 0.15s ease !important;
 }
 
-.form-field label {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #334155;
-  margin-bottom: 4px;
+/* Neutral Action Button (View Details) */
+main.main-content .view-details-btn,
+main.main-content button.view-details,
+main.main-content button[onclick*="Modal"],
+main.main-content button[onclick*="details"] {
+  background: #134e4a !important;
 }
 
-.form-field input,
-.form-field select,
-.form-field textarea {
-  width: 100%;
-  font-family: inherit;
-  font-size: 0.9rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 8px 10px;
-  color: #0f172a;
+main.main-content .view-details-btn:hover,
+main.main-content button.view-details:hover,
+main.main-content button[onclick*="Modal"]:hover,
+main.main-content button[onclick*="details"]:hover {
+  background: #0f3e3b !important;
 }
 
-.form-field textarea {
-  resize: vertical;
-  min-height: 56px;
+/* GREEN ACCEPT / APPROVE BUTTONS */
+main.main-content .approve-btn, 
+main.main-content .btn-approve,
+main.main-content .accept-btn,
+main.main-content button.approve,
+main.main-content button.accept,
+main.main-content button[onclick*="Approved"],
+main.main-content button[onclick*="approved"],
+main.main-content button[onclick*="Accept"],
+main.main-content button[onclick*="accept"] {
+  background: #28a745 !important;
+  color: #ffffff !important;
 }
 
-.form-hint {
-  font-size: 0.72rem;
-  color: #94a3b8;
-  margin-top: 3px;
+main.main-content .approve-btn:hover, 
+main.main-content .btn-approve:hover,
+main.main-content .accept-btn:hover,
+main.main-content button.approve:hover,
+main.main-content button.accept:hover,
+main.main-content button[onclick*="Approved"]:hover,
+main.main-content button[onclick*="approved"]:hover,
+main.main-content button[onclick*="Accept"]:hover,
+main.main-content button[onclick*="accept"]:hover {
+  background: #1e7e34 !important;
 }
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 18px;
-  border-top: 1px solid #f1f5f9;
-  padding-top: 14px;
+/* RED REJECT BUTTONS */
+main.main-content .reject-btn, 
+main.main-content .btn-reject,
+main.main-content button.reject,
+main.main-content button[onclick*="Rejected"],
+main.main-content button[onclick*="rejected"] {
+  background: #dc3545 !important;
+  color: #ffffff !important;
 }
 
-.form-error {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 0.83rem;
-  margin-top: 12px;
+main.main-content .reject-btn:hover, 
+main.main-content .btn-reject:hover,
+main.main-content button.reject:hover,
+main.main-content button[onclick*="Rejected"]:hover,
+main.main-content button[onclick*="rejected"]:hover {
+  background: #b02a37 !important;
+}
+
+/* Responsive Grid Breakpoints */
+@media (max-width: 1200px) {
+  main.main-content #applications-list, 
+  main.main-content .applications-list {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  main.main-content #applications-list, 
+  main.main-content .applications-list {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+main.main-content .card-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  margin-top: 0.5rem !important;
+  width: 100% !important;
+}
+
+main.main-content .card-actions button {
+  margin-top: 0 !important;
+  width: 100% !important;
 }

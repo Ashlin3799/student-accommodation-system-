@@ -12,13 +12,19 @@ const roleMiddleware = require('../middleware/role');
 // STUDENT - Submit a new application
 // POST /api/applications
 // ============================================================
+
 router.post(
   '/',
   authMiddleware,
   roleMiddleware('student'),
   async (req, res, next) => {
     try {
-      const { studentId, studentName, roomId, roomTitle } = req.body;
+      const {
+        studentId,
+        studentName,
+        roomId,
+        roomTitle
+      } = req.body;
 
       if (!studentId || !studentName || !roomId || !roomTitle) {
         return res.status(400).json({
@@ -27,9 +33,11 @@ router.post(
         });
       }
 
-      // Make sure a student can only submit an application
-      // for their own account.
-      if (String(req.user.id || req.user.userId) !== String(studentId)) {
+      // Student can only submit an application for their own account
+      if (
+        String(req.user.id || req.user.userId) !==
+        String(studentId)
+      ) {
         return res.status(403).json({
           success: false,
           message: 'You can only submit an application for your own account.'
@@ -70,6 +78,7 @@ router.post(
 // STUDENT / ADMIN - Get student's current application status
 // GET /api/applications/:studentId
 // ============================================================
+
 router.get(
   '/:studentId',
   authMiddleware,
@@ -77,11 +86,12 @@ router.get(
   async (req, res, next) => {
     try {
 
-      // Students can only access their own application.
-      // Admins can access any student's application.
+      // Students can only view their own application.
+      // Admins can view any student's application.
       if (
         req.user.role === 'student' &&
-        String(req.user.id || req.user.userId) !== String(req.params.studentId)
+        String(req.user.id || req.user.userId) !==
+        String(req.params.studentId)
       ) {
         return res.status(403).json({
           success: false,
@@ -113,6 +123,7 @@ router.get(
 // ADMIN - Get all applications
 // GET /api/applications
 // ============================================================
+
 router.get(
   '/',
   authMiddleware,
@@ -136,6 +147,7 @@ router.get(
 // ADMIN - Approve / Reject application
 // PATCH /api/applications/:id
 // ============================================================
+
 router.patch(
   '/:id',
   authMiddleware,
@@ -162,6 +174,7 @@ router.patch(
 
       const previousStatus = existing.status;
 
+      // Keep the latest main-branch implementation
       const updated = await Application.findByIdAndUpdate(
         req.params.id,
         {
@@ -169,10 +182,11 @@ router.patch(
           updatedAt: Date.now()
         },
         {
-          new: true
+          returnDocument: 'after'
         }
       );
 
+      // Update room occupancy when application status changes
       if (
         previousStatus !== 'Approved' &&
         status === 'Approved'
