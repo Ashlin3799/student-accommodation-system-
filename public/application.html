@@ -457,6 +457,17 @@
             document.getElementById("checkStudentId").value = remembered;
         }
     });
+    // Auto-fill roomId and roomTitle from URL search params
+    window.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("roomId")) {
+            document.getElementById("roomId").value = params.get("roomId");
+        }
+        if (params.get("roomTitle")) {
+            document.getElementById("roomTitle").value = params.get("roomTitle");
+        }
+    });
+    
 
     // Submit application
     const applyForm = document.getElementById("applyForm");
@@ -472,10 +483,13 @@
         applyBtn.textContent = "Submitting...";
 
         const studentId = document.getElementById("studentId").value.trim();
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+          const studentEmail = user.email || "student@test.com";
 
         const body = {
             studentId,
             studentName: document.getElementById("studentName").value.trim(),
+            studentEmail,
             roomId: document.getElementById("roomId").value.trim(),
             roomTitle: document.getElementById("roomTitle").value.trim()
         };

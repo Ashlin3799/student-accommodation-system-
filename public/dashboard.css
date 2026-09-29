@@ -35,9 +35,23 @@
 }
 
 .dashboard-message {
-  margin: 0 0 20px;
+  margin-bottom: 4px;
   min-height: 20px;
-  font-size: 14px;
+}
+
+.dashboard-last-updated {
+  margin: 0 0 15px;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.dashboard-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dashboard-container.is-loading .stat-value {
+  opacity: 0.5;
 }
 
 .dashboard-section {
@@ -339,4 +353,14 @@
   .chart-container {
     height: 200px;
   }
+}
+/* Prevent dashboard.css from adding unwanted body/container outer spacing */
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.dashboard-container {
+  margin: 0 !important;
+  padding: 0 !important;
 }

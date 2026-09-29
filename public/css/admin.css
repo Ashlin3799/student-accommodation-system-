@@ -1,10 +1,16 @@
-* {
+*{ 
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
 .dashboard-container {
   display: flex;
   min-height: 100vh;
@@ -12,51 +18,82 @@
 
 /* Sidebar Styling */
 .sidebar {
-  width: 240px;
-  height: 100vh;
-  position: sticky;
-  background: #1e293b;
-  color: #fff;
-  padding: 20px;
-  top: 0;
-  flex-shrink: 0;
+  width: 260px !important;
+  min-width: 260px !important;
+  background-color: #1e293b;
+  color: #ffffff;
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+sidebar h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #ffffff;
 }
 
-.sidebar h2 {
-  margin-bottom: 5px;
-  font-size: 1.2rem;
-  padding-bottom: 5px;
-}
-
-.sidebar #adminName {
-  font-size: 0.85rem;
+.sidebar #adminName,
+.sidebar p {
   color: #94a3b8;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #334155;
-  padding-bottom: 10px;
+  font-size: 0.875rem;
+  margin-bottom: 24px;
 }
 
 .sidebar ul {
   list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.sidebar li {
-  margin-bottom: 15px;
+.sidebar ul li {
+  margin-bottom: 8px;
 }
 
-.sidebar a {
-  color: #cbd5e1;
+.sidebar ul li a {
+  display: block;
+  padding: 10px 14px;
+  color: #94a3b8;
   text-decoration: none;
+  border-radius: 6px;
   font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
 }
 
-.sidebar a.active {
-  color: #38bdf8;
-  font-weight: bold;
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+  background-color: #0f172a;
+  color: #fbfbfb;
 }
+
+.sidebar .logout-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sidebar .logout-btn:hover {
+  background-color: #dc2626;
+}
+
+.main-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
 
 .logout-btn {
   background: #ef4444;
@@ -564,4 +601,66 @@
   padding: 8px 10px;
   font-size: 0.83rem;
   margin-top: 12px;
+}
+/* ==========================================
+   ROOM MANAGEMENT — PAGER + ARCHIVE
+========================================== */
+
+.btn-archive-toggle { margin-left: auto; }
+
+.rooms-toolbar.is-archived-view .rooms-toolbar-row input,
+.rooms-toolbar.is-archived-view .rooms-toolbar-row select,
+.rooms-toolbar.is-archived-view #clearFiltersButton,
+.rooms-toolbar.is-archived-view #addRoomButton {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.rooms-pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.rooms-pager[hidden] { display: none; }
+
+.pager-btn {
+  min-width: 36px;
+  padding: 7px 12px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.pager-btn:hover:not(:disabled) { background: #eff6ff; border-color: #2563eb; color: #2563eb; }
+.pager-btn.is-current { background: #2563eb; border-color: #2563eb; color: white; cursor: default; }
+.pager-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn-restore-room { background: #f0fdf4; color: #15803d; }
+.btn-restore-room:hover { background: #dcfce7; }
+
+.room-status-archived { background: #475569; }
+
+/* Sidebar & Layout Fix */
+
+
+
+.main-content {
+  flex: 1 !important;
+  min-width: 0 !important;
+  overflow-y: auto !important;
+}
+
+/* Application cards grid layout */
+#applications-list.applications-list {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+  gap: 16px !important;
 }
