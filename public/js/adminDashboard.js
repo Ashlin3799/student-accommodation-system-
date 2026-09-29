@@ -33,21 +33,25 @@ async function fetchApplications() {
           return `
           <div class="app-card" id="app-${app._id}" style="border:1px solid #e5e7eb; padding:16px; margin-bottom:12px; border-radius:8px; background:white;">
             <h3 style="margin-top:0;">${escapeHtml(studentName)}</h3>
-            <p><strong>Room Requested:</strong> ${escapeHtml(roomName)}</p>
+            <p><strong>Room:</strong> ${escapeHtml(roomName)}</p>
             <p><strong>Date Submitted:</strong> ${dateStr}</p>
-            <p><strong>Status:</strong> <span class="badge-${rawStatus.toLowerCase()}" style="padding:2px 8px; border-radius:4px; text-transform:capitalize;">${escapeHtml(rawStatus)}</span></p>
-
-         
-    ${
-      isPending
-        ? `
-    <div style="margin-top: 10px;">
-        <button onclick="updateStatus('${app._id}', 'Approved')" style="background:#22c55e; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; margin-right:8px;">Approve</button>
-        <button onclick="updateStatus('${app._id}', 'Rejected')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Reject</button>
-    </div>
-    `
-        : ""
-    }
+       <p><strong>Status:</strong> <span style="${
+         rawStatus.toLowerCase() === "approved"
+           ? "background:#dcfce7; color:#15803d;"
+           : rawStatus.toLowerCase() === "rejected"
+             ? "background:#fee2e2; color:#b91c1c;"
+             : "background:#fef3c7; color:#b45309;"
+       } padding:3px 10px; border-radius:12px; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.02em;">${escapeHtml(rawStatus)}</span></p>
+   ${
+     isPending
+       ? `
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;"> 
+    <button onclick="updateStatus('${app._id}', 'Approved')" style="background:#28a745; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">Approve</button> 
+    <button onclick="updateStatus('${app._id}', 'Rejected')" style="background:#dc3545; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">Reject</button> 
+</div> 
+`
+       : ""
+   }
 
             <button onclick="showDetails('${app._id}')" style="margin-top:10px; background:#14403f; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">View Details</button>
           </div>

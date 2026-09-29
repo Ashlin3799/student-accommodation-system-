@@ -1,825 +1,384 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
-<head>
-
-  <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
-  <title>
-    Room Applications - Admin
-  </title>
-
-  <link
-    rel="stylesheet"
-    href="/css/admin.css"
-  />
-
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Room Applications - Admin</title>
+    <link rel="stylesheet" href="/css/admin.css" />
   <style>
-
-    /* ==========================================
-       APPLICATION TABLE
-    ========================================== */
-
-    .app-table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
-
-
-    .app-table th,
-    .app-table td {
-      text-align: left;
-      padding: 12px 14px;
-      border-bottom: 1px solid #e2e8f0;
-      font-size: 14px;
-    }
-
-
-    .app-table th {
-      background: #f8fafc;
-      color: #334155;
-    }
-
-
-    .app-table tr:hover {
-      background: #f8fafc;
-    }
-
-
-
-    /* ==========================================
-       STATUS BADGES
-    ========================================== */
-
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-weight: bold;
-      font-size: 12px;
-      color: white;
-    }
-
-
-    .Pending {
-      background: #e0a800;
-    }
-
-
-    .Approved {
-      background: #28a745;
-    }
-
-
-    .Rejected {
-      background: #dc3545;
-    }
-
-
-
-    /* ==========================================
-       ACTION BUTTONS
-    ========================================== */
-
-    .row-actions button {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      cursor: pointer;
-      font-size: 12.5px;
-      margin-right: 6px;
-    }
-
-
-    .approve-btn {
-      background: #28a745;
-    }
-
-
-    .approve-btn:hover {
-      background: #1e7e34;
-    }
-
-
-    .reject-btn {
-      background: #dc3545;
-    }
-
-
-    .reject-btn:hover {
-      background: #b02a37;
-    }
-
-
-    .row-actions button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-
-
-    /* ==========================================
-       BACK LINK
-    ========================================== */
-
-    .back-link {
-      display: inline-block;
-      margin-bottom: 16px;
-      color: #64748b;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-
-    .back-link:hover {
-      text-decoration: underline;
-    }
-
-
-
-    /* ==========================================
-       MESSAGE
-    ========================================== */
-
-    #listMessage {
-      color: #64748b;
-      margin-bottom: 16px;
-    }
-
-  </style>
-
-</head>
-
-
-<body>
-
-
-<div class="dashboard-container">
-
-
-  <!-- ==========================================
-       ADMIN SIDEBAR
-  ========================================== -->
-
-  <aside class="sidebar">
-
-
-    <div>
-
-      <h2>
-        Admin Portal
-      </h2>
-
-
-      <p id="adminName">
-        Administrator
-      </p>
-
-
-      <ul>
-
-        <li>
-
-          <a href="/admin/dashboard.html">
-            Dashboard
-          </a>
-
-        </li>
-
-
-        <li>
-
-          <a href="/admin/rooms.html">Manage Rooms</a>
-
-        </li>
-
-
-        <li>
-
-          <a
-            href="/admin/applications.html"
-            class="active"
-          >
-            Room Applications
-          </a>
-
-        </li>
-
-
-        <li>
-
-          <a href="/admin/complaints.html">
-            Complaints
-          </a>
-
-        </li>
-
-      </ul>
-
-    </div>
-
-
-
-    <button
-      type="button"
-      class="logout-btn"
-      id="logoutButton"
-    >
-      Logout
-    </button>
-
-
-  </aside>
-
-
-
-  <!-- ==========================================
-       MAIN CONTENT
-  ========================================== -->
-
-  <main
-    class="main-content"
-    style="padding: 24px; flex: 1"
-  >
-
-
-    <a
-      href="/admin/dashboard.html"
-      class="back-link"
-    >
-      ← Back to Dashboard
-    </a>
-
-
-
-    <div class="dashboard-header">
-
-      <div>
-
-        <h1>
-          Room Applications
-        </h1>
-
-        <p>
-          Review and process student accommodation applications.
-        </p>
-
-      </div>
-
-
-      <button
-        type="button"
-        id="refreshButton"
-        class="dashboard-refresh"
-      >
-        Refresh
-      </button>
-
-    </div>
-
-
-
-    <p id="listMessage">
-      Loading applications...
-    </p>
-
-
-
-    <!-- ==========================================
-         APPLICATION TABLE
-    ========================================== -->
-
-    <table class="app-table">
-
-
-      <thead>
-
-        <tr>
-
-          <th>
-            Student ID
-          </th>
-
-          <th>
-            Student Name
-          </th>
-
-          <th>
-            Room
-          </th>
-
-          <th>
-            Status
-          </th>
-
-          <th>
-            Submitted
-          </th>
-
-          <th>
-            Actions
-          </th>
-
-        </tr>
-
-      </thead>
-
-
-
-      <tbody id="applicationsBody">
-
-      </tbody>
-
-
-    </table>
-
-
-  </main>
-
-
-</div>
-
-
-
-<script>
-
-
-  // ==========================================
-  // CHECK ADMIN LOGIN
-  // ==========================================
-
-  const userData =
-    localStorage.getItem("user");
-
-  const token =
-    localStorage.getItem("token");
-
-
-  if (!userData || !token) {
-
-    window.location.href = "/";
-
+  /* ==========================================================================
+     ROOM APPLICATIONS PAGE - CLEAN ALIGNMENT & DESIGN POLISH
+     ========================================================================== */
+
+  /* Back Button Link */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 16px;
+    color: #0284c7;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: color 0.15s ease, transform 0.15s ease;
   }
 
-  else {
-
-    try {
-
-      const user =
-        JSON.parse(userData);
-
-
-      if (user.role !== "admin") {
-
-        window.location.href =
-          "/student/dashboard.html";
-
-      }
-
-      else if (user.name) {
-
-        document
-          .getElementById("adminName")
-          .textContent = user.name;
-
-      }
-
-    }
-
-    catch (error) {
-
-      localStorage.removeItem("token");
-
-      localStorage.removeItem("user");
-
-      window.location.href = "/";
-
-    }
-
+  .back-link:hover {
+    color: #04517b;
+    transform: translateX(-2px);
+    text-decoration: none;
   }
 
+  /* Header & Action Controls */
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+  }
 
+  .dashboard-header h1 {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.02em;
+  }
 
-  // ==========================================
-  // DOM ELEMENTS
-  // ==========================================
+  .dashboard-header p {
+    color: #64748b;
+    font-size: 0.92rem;
+    margin: 0;
+  }
 
-  const tbody =
-    document.getElementById(
-      "applicationsBody"
-    );
+.dashboard-refresh {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 8px 18px !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    cursor: pointer !important;
+    transition: background 0.15s ease !important;
+  }
 
+  .dashboard-refresh:hover {
+    background: #1d4ed8 !important;
+  }
 
-  const listMessage =
-    document.getElementById(
-      "listMessage"
-    );
+  /* Counter & Subtitle Message */
+  #listMessage {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 16px 0;
+  }
 
+  /* Table Structure & Alignment */
+  .app-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
 
-  const refreshButton =
-    document.getElementById(
-      "refreshButton"
-    );
+  .app-table th,
+  .app-table td {
+    text-align: left;
+    padding: 14px 18px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.88rem;
+    vertical-align: middle;
+  }
 
+  .app-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e2e8f0;
+  }
 
-  const logoutButton =
-    document.getElementById(
-      "logoutButton"
-    );
+  .app-table tr:last-child td {
+    border-bottom: none;
+  }
 
+  .app-table tr:hover {
+    background: #f8fafc;
+  }
 
+  /* Soft Dimmed Status Badges */
+  .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
 
-  // ==========================================
-  // LOGOUT
-  // ==========================================
+  .badge.Pending,
+  .badge.pending {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+  }
 
-  logoutButton.addEventListener(
-    "click",
-    function () {
+  .badge.Approved,
+  .badge.approved {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
 
-      localStorage.removeItem(
-        "token"
-      );
+  .badge.Rejected,
+  .badge.rejected {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+  }
 
-      localStorage.removeItem(
-        "user"
-      );
+  /* Side-by-Side Action Buttons */
+  .row-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-      window.location.href =
-        "/";
+  .row-actions button {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
 
-    }
-  );
+  .approve-btn {
+    background: #28a745;
+  }
 
+  .approve-btn:hover {
+    background: #1e7e34;
+  }
 
+  .reject-btn {
+    background: #dc3545;
+  }
 
-  // ==========================================
-  // LOAD APPLICATIONS
-  // ==========================================
+  .reject-btn:hover {
+    background: #b02a37;
+  }
 
-  async function loadApplications() {
+  .row-actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+</style>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <!-- ADMIN SIDEBAR -->
+      <aside class="sidebar">
+        <div>
+          <h2>Admin Portal</h2>
+          <p id="adminName">Administrator</p>
+          <ul>
+            <li><a href="/admin/dashboard.html">Dashboard</a></li>
+            <li><a href="/admin/rooms.html">Manage Rooms</a></li>
+            <li>
+              <a href="/admin/applications.html" class="active">Room Applications</a>
+            </li>
+            <li><a href="/admin/complaints.html">Complaints</a></li>
+          </ul>
+        </div>
+        <button type="button" class="logout-btn" id="logoutButton">
+          Logout
+        </button>
+      </aside>
 
-    listMessage.textContent =
-      "Loading applications...";
+      <!-- MAIN CONTENT -->
+      <main class="main-content" style="padding: 24px; flex: 1">
+        <a href="/admin/dashboard.html" class="back-link">← Back to Dashboard</a>
 
+        <div class="dashboard-header">
+          <div>
+            <h1>Room Applications</h1>
+            <p>Review and process student accommodation applications.</p>
+          </div>
+          <button type="button" id="refreshButton" class="dashboard-refresh">
+            Refresh
+          </button>
+        </div>
 
-    try {
+        <p id="listMessage">Loading applications...</p>
 
-      const res =
-        await fetch(
-          "/api/applications"
-        );
+        <!-- APPLICATION TABLE -->
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>Room</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="applicationsBody"></tbody>
+        </table>
+      </main>
+    </div>
 
-
-      const data =
-        await res.json();
-
-
-      if (!res.ok) {
-
-        throw new Error(
-          data.message ||
-          data.error ||
-          "Failed to load applications."
-        );
-
+    <script>
+      // CHECK ADMIN LOGIN
+      const userData = localStorage.getItem("user");
+      const token = localStorage.getItem("token");
+      if (!userData || !token) {
+        window.location.href = "/";
+      } else {
+        try {
+          const user = JSON.parse(userData);
+          if (user.role !== "admin") {
+            window.location.href = "/student/dashboard.html";
+          } else if (user.name) {
+            document.getElementById("adminName").textContent = user.name;
+          }
+        } catch (error) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.href = "/";
+        }
       }
 
+      // DOM ELEMENTS
+      const tbody = document.getElementById("applicationsBody");
+      const listMessage = document.getElementById("listMessage");
+      const refreshButton = document.getElementById("refreshButton");
+      const logoutButton = document.getElementById("logoutButton");
 
-      if (
-        !Array.isArray(data) ||
-        data.length === 0
-      ) {
+      // LOGOUT
+      logoutButton.addEventListener("click", function () {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/";
+      });
 
-        listMessage.textContent =
-          "No applications submitted yet.";
+      // LOAD APPLICATIONS
+      async function loadApplications() {
+        listMessage.textContent = "Loading applications...";
+        try {
+          const res = await fetch("/api/applications");
+          const data = await res.json();
 
-        tbody.innerHTML =
-          "";
+          if (!res.ok) {
+            throw new Error(data.message || data.error || "Failed to load applications.");
+          }
 
-        return;
+          if (!Array.isArray(data) || data.length === 0) {
+            listMessage.textContent = "No applications submitted yet.";
+            tbody.innerHTML = "";
+            return;
+          }
 
-      }
+          listMessage.textContent = `${data.length} application${data.length === 1 ? "" : "s"} found.`;
 
-
-      listMessage.textContent =
-        `${data.length} application${
-          data.length === 1
-            ? ""
-            : "s"
-        } found.`;
-
-
-
-      tbody.innerHTML =
-        data
-          .map(
-            (app) => {
-
-              const rawStatus =
-                app.status ||
-                "Pending";
-
-
-              const isPending =
-                rawStatus
-                  .toLowerCase() ===
-                "pending";
-
-
-              const roomTitle =
-                app.roomTitle ||
-                app.room ||
-                "Standard Room";
-
-
-              const studentId =
-                app.studentId ||
-                app.user ||
-                "N/A";
-
-
-              const studentName =
-                app.studentName ||
-                app.name ||
-                "N/A";
-
-
-              const submittedDate =
-                app.createdAt
-                  ? new Date(
-                      app.createdAt
-                    ).toLocaleDateString()
-                  : "N/A";
-
-
+          tbody.innerHTML = data
+            .map((app) => {
+              const rawStatus = app.status || "Pending";
+              const isPending = rawStatus.toLowerCase() === "pending";
+              const roomTitle = app.roomTitle || app.room || "Standard Room";
+              const studentId = app.studentId || app.user || "N/A";
+              const studentName = app.studentName || app.name || "N/A";
+              const submittedDate = app.createdAt
+                ? new Date(app.createdAt).toLocaleDateString()
+                : "N/A";
 
               return `
-
                 <tr data-id="${escapeHtml(app._id)}">
-
+                  <td>${escapeHtml(studentId)}</td>
+                  <td>${escapeHtml(studentName)}</td>
+                  <td>${escapeHtml(roomTitle)}</td>
                   <td>
-                    ${escapeHtml(studentId)}
+                    <span class="badge ${escapeHtml(rawStatus)}">${escapeHtml(rawStatus)}</span>
                   </td>
-
-
-                  <td>
-                    ${escapeHtml(studentName)}
-                  </td>
-
-
-                  <td>
-                    ${escapeHtml(roomTitle)}
-                  </td>
-
-
-                  <td>
-
-                    <span
-                      class="badge ${escapeHtml(rawStatus)}"
-                    >
-                      ${escapeHtml(rawStatus)}
-                    </span>
-
-                  </td>
-
-
-                  <td>
-                    ${escapeHtml(submittedDate)}
-                  </td>
-
-
+                  <td>${escapeHtml(submittedDate)}</td>
                   <td class="row-actions">
-
                     ${
                       isPending
-
                         ? `
-
-                          <button
-                            class="approve-btn"
-                            onclick="updateStatus(
-                              '${app._id}',
-                              'Approved'
-                            )"
-                          >
-                            Approve
-                          </button>
-
-
-                          <button
-                            class="reject-btn"
-                            onclick="updateStatus(
-                              '${app._id}',
-                              'Rejected'
-                            )"
-                          >
-                            Reject
-                          </button>
-
+                          <button class="approve-btn" onclick="updateStatus('${app._id}', 'Approved')">Approve</button>
+                          <button class="reject-btn" onclick="updateStatus('${app._id}', 'Rejected')">Reject</button>
                         `
-
-                        : `
-
-                          <span
-                            style="
-                              color:#94a3b8;
-                              font-size:12.5px;
-                            "
-                          >
-                            No actions
-                          </span>
-
-                        `
+                        : `<span style="color:#94a3b8; font-size:12.5px;">No actions</span>`
                     }
-
                   </td>
-
                 </tr>
-
               `;
-
-            }
-          )
-          .join("");
-
-    }
-
-    catch (error) {
-
-      console.error(
-        "Application loading error:",
-        error
-      );
-
-
-      listMessage.textContent =
-        error.message;
-
-
-      tbody.innerHTML =
-        "";
-
-    }
-
-  }
-
-
-
-  // ==========================================
-  // UPDATE APPLICATION STATUS
-  // ==========================================
-
-  async function updateStatus(
-    id,
-    status
-  ) {
-
-    try {
-
-      const confirmed =
-        window.confirm(
-          `Are you sure you want to ${status.toLowerCase()} this application?`
-        );
-
-
-      if (!confirmed) {
-
-        return;
-
-      }
-
-
-      const res =
-        await fetch(
-          `/api/applications/${id}`,
-          {
-
-            method: "PATCH",
-
-            headers: {
-
-              "Content-Type":
-                "application/json"
-
-            },
-
-            body: JSON.stringify({
-              status
             })
-
-          }
-        );
-
-
-      const data =
-        await res.json();
-
-
-      if (!res.ok) {
-
-        throw new Error(
-          data.message ||
-          data.error ||
-          "Failed to update application."
-        );
-
+            .join("");
+        } catch (error) {
+          console.error("Application loading error:", error);
+          listMessage.textContent = error.message;
+          tbody.innerHTML = "";
+        }
       }
 
+      // UPDATE APPLICATION STATUS
+      async function updateStatus(id, status) {
+        try {
+          const confirmed = window.confirm(`Are you sure you want to ${status.toLowerCase()} this application?`);
+          if (!confirmed) return;
 
-      await loadApplications();
+          const res = await fetch(`/api/applications/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status })
+          });
 
-    }
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.message || data.error || "Failed to update application.");
+          }
 
-    catch (error) {
+          await loadApplications();
+        } catch (error) {
+          console.error("Application update error:", error);
+          alert(error.message);
+        }
+      }
 
-      console.error(
-        "Application update error:",
-        error
-      );
+      // ESCAPE HTML
+      function escapeHtml(value) {
+        const div = document.createElement("div");
+        div.textContent = String(value ?? "");
+        return div.innerHTML;
+      }
 
+      // REFRESH & INITIAL LOAD
+      refreshButton.addEventListener("click", function () {
+        loadApplications();
+      });
 
-      alert(
-        error.message
-      );
-
-    }
-
-  }
-
-
-
-  // ==========================================
-  // ESCAPE HTML
-  // ==========================================
-
-  function escapeHtml(value) {
-
-    const div =
-      document.createElement(
-        "div"
-      );
-
-
-    div.textContent =
-      String(
-        value ?? ""
-      );
-
-
-    return div.innerHTML;
-
-  }
-
-
-
-  // ==========================================
-  // REFRESH BUTTON
-  // ==========================================
-
-  refreshButton.addEventListener(
-    "click",
-    function () {
-
+      // Initial page load & periodic poll every 3 seconds
       loadApplications();
-
-    }
-  );
-
-
-
-  // ==========================================
-  // INITIAL LOAD
-  // ==========================================
-
-  loadApplications();
-
-
-
-  // ==========================================
-  // AUTO REFRESH EVERY 5 SECONDS
-  // ==========================================
-
-  setInterval(
-    loadApplications,
-    5000
-  );
-
-
-</script>
-
-
-</body>
-
+      setInterval(() => {
+        loadApplications();
+      }, 3000);
+    </script>
+  </body>
 </html>
+
