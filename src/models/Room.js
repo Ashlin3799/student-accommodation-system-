@@ -73,7 +73,7 @@ const RoomSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-RoomSchema.pre('save', async function () {
+RoomSchema.pre('save', function (next) {
   if (this.status !== 'maintenance') {
     if (this.occupied >= this.capacity) {
       this.status = 'occupied';
@@ -81,6 +81,7 @@ RoomSchema.pre('save', async function () {
       this.status = 'available';
     }
   }
+  next();
 });
 
 RoomSchema.index({ status: 1, type: 1, pricePerMonth: 1 });

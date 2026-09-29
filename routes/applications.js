@@ -4,7 +4,7 @@ const Application = require('../models/Application');
 const { adjustRoomOccupancy } = require('../src/controllers/roomController');
 
 // Submit a new application
-router.post("/", async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
     const { studentId, studentName, studentEmail, roomId, roomTitle } = req.body;
 
@@ -16,16 +16,17 @@ router.post("/", async (req, res, next) => {
 
     const existingActive = await Application.findOne({
       studentId,
-      status: { $in: ["Pending", "Approved"] },
+      status: { $in: ['Pending', 'Approved'] }
     });
 
     if (existingActive) {
       return res.status(409).json({
         success: false,
-        message: "You already have an active application.",
+        message: 'You already have an active application.'
       });
     }
 
+<<<<<<< HEAD
     const newApplication = new Application({
       studentId,
       studentName,
@@ -33,6 +34,9 @@ router.post("/", async (req, res, next) => {
       roomId,
       roomTitle,
     });
+=======
+    const newApplication = new Application({ studentId, studentName, roomId, roomTitle });
+>>>>>>> 54277a05ee68e2a17ba9e387f5ee9111772295ad
     await newApplication.save();
 
     res.status(201).json(newApplication);
@@ -42,19 +46,12 @@ router.post("/", async (req, res, next) => {
 });
 
 // Get a student's current status
-router.get("/:studentId", async (req, res, next) => {
+router.get('/:studentId', async (req, res, next) => {
   try {
-    const application = await Application.findOne({
-      studentId: req.params.studentId,
-    }).sort({ createdAt: -1 });
+    const application = await Application.findOne({ studentId: req.params.studentId }).sort({ createdAt: -1 });
 
     if (!application) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "No application found for this student.",
-        });
+      return res.status(404).json({ success: false, message: 'No application found for this student.' });
     }
 
     res.json(application);
@@ -64,7 +61,7 @@ router.get("/:studentId", async (req, res, next) => {
 });
 
 // Get all applications (for admin)
-router.get("/", async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
     const applications = await Application.find().sort({ createdAt: -1 });
     res.json(applications);
@@ -90,14 +87,12 @@ router.patch('/:id', async (req, res, next) => {
 
     const previousStatus = existing.status;
 
-    // Updated returnDocument to prevent Mongoose deprecation warning
     const updated = await Application.findByIdAndUpdate(
       req.params.id,
       { status, updatedAt: Date.now() },
-      { returnDocument: 'after' }
+      { new: true }
     );
 
-    // Sprint 2 Room Occupancy Trigger
     if (previousStatus !== 'Approved' && status === 'Approved') {
       await adjustRoomOccupancy(updated.roomId, 1);
     } else if (previousStatus === 'Approved' && status !== 'Approved') {
