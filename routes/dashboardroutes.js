@@ -20,4 +20,11 @@ router.get(
   dashboardController.getDashboardTrends
 );
 
+router.get(
+  '/student',
+  authMiddleware,
+  roleMiddleware('student'),
+  dashboardController.getStudentDashboard
+);
+
 module.exports = router;

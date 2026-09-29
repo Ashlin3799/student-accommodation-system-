@@ -1,6 +1,7 @@
 const Room = require('../src/models/Room');
 const Application = require('../models/Application');
 const Complaint = require('../models/Complaint');
+const User = require('../models/User');
 
 
 const buildDateMatch = (startDate, endDate) => {
@@ -279,6 +280,113 @@ exports.getDashboardTrends = async (req, res, next) => {
       data: {
         applications: applicationTrend,
         complaints: complaintTrend
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// ---------------------------------------------------------------------------
+// Student dashboard: stats for the logged-in student only.
+//
+// Applications store the student's email (taken from their account at apply
+// time), so that is the reliable link between a login and their applications.
+// Complaints only store the free-typed studentId, so we use the studentId(s)
+// found on the student's own applications to locate their complaints.
+// ---------------------------------------------------------------------------
+const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const caseInsensitiveExact = (value) =>
+  new RegExp(`^${escapeRegex(String(value).trim())}$`, 'i');
+
+exports.getStudentDashboard = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.userId).select('name email role');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User account not found'
+      });
+    }
+
+    // Match on the account email OR the account name (both case-insensitive),
+    // because the application form lets students type their own name/ID.
+    const applicationIdentity = [
+      { studentEmail: caseInsensitiveExact(user.email) }
+    ];
+    if (user.name) {
+      applicationIdentity.push({ studentName: caseInsensitiveExact(user.name) });
+    }
+
+    const applicationDocs = await Application.find({
+      $or: applicationIdentity
+    }).sort({ createdAt: -1 });
+
+    const applications = { total: 0, pending: 0, approved: 0, rejected: 0 };
+    applicationDocs.forEach((app) => {
+      const status = String(app.status || '').toLowerCase();
+      applications.total += 1;
+      if (status === 'pending') applications.pending += 1;
+      else if (status === 'approved') applications.approved += 1;
+      else if (status === 'rejected') applications.rejected += 1;
+    });
+
+    const studentIds = [
+      ...new Set(applicationDocs.map((app) => app.studentId).filter(Boolean))
+    ];
+
+    const complaints = { total: 0, pending: 0, inProgress: 0, resolved: 0 };
+    const complaintIdentity = [];
+    if (studentIds.length > 0) complaintIdentity.push({ studentId: { $in: studentIds } });
+    if (user.name) complaintIdentity.push({ studentName: caseInsensitiveExact(user.name) });
+
+    if (complaintIdentity.length > 0) {
+      const complaintDocs = await Complaint.find({
+        $or: complaintIdentity
+      }).select('status');
+
+      complaintDocs.forEach((item) => {
+        const status = String(item.status || '').toLowerCase();
+        complaints.total += 1;
+        if (status === 'pending') complaints.pending += 1;
+        else if (status === 'in progress') complaints.inProgress += 1;
+        else if (status === 'resolved') complaints.resolved += 1;
+      });
+    }
+
+    // Room: taken from the student's most recent approved application.
+    let room = null;
+    const approved = applicationDocs.find(
+      (app) => String(app.status).toLowerCase() === 'approved'
+    );
+
+    if (approved) {
+      let roomDoc = null;
+      try {
+        roomDoc = await Room.findById(approved.roomId);
+      } catch (err) {
+        roomDoc = null; // roomId is not a valid ObjectId; fall back to the title
+      }
+
+      room = {
+        roomId: approved.roomId,
+        roomTitle: roomDoc
+          ? `${roomDoc.roomNumber} - ${roomDoc.building}`
+          : approved.roomTitle,
+        status: 'Assigned'
+      };
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Student dashboard retrieved successfully',
+      data: {
+        student: { name: user.name, email: user.email },
+        applications,
+        complaints,
+        room
       }
     });
   } catch (error) {
