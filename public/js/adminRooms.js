@@ -1,6 +1,6 @@
-// Admin Room Management (add/edit/delete rooms, search & filter, and a
-// nicer card layout with room photos). Talks to the existing
-// /api/rooms CRUD endpoints in src/routes/rooms.js.
+// Admin Room Management: add/edit/archive rooms, search & filter, pagination
+// and an archive view. Talks to /api/rooms (src/routes/rooms.js). Write
+// operations need an admin JWT, which is sent as a Bearer token.
 
 // ----------------------------------------------------
 // DOM ELEMENTS
@@ -8,8 +8,10 @@
 
 const roomsGrid = document.getElementById('roomsGrid');
 const roomsMessage = document.getElementById('roomsMessage');
+const roomsPager = document.getElementById('roomsPager');
 const adminName = document.getElementById('adminName');
 
+const roomsToolbar = document.querySelector('.rooms-toolbar');
 const roomSearch = document.getElementById('roomSearch');
 const typeFilter = document.getElementById('typeFilter');
 const statusFilter = document.getElementById('statusFilter');
@@ -17,6 +19,7 @@ const minPrice = document.getElementById('minPrice');
 const maxPrice = document.getElementById('maxPrice');
 const sortBy = document.getElementById('sortBy');
 const clearFiltersButton = document.getElementById('clearFiltersButton');
+const archivedToggle = document.getElementById('archivedToggle');
 
 const refreshButton = document.getElementById('refreshButton');
 const logoutButton = document.getElementById('logoutButton');
@@ -29,12 +32,20 @@ const cancelRoomForm = document.getElementById('cancelRoomForm');
 const roomForm = document.getElementById('roomForm');
 const roomFormError = document.getElementById('roomFormError');
 
+const PAGE_SIZE = 9;
+
 // ----------------------------------------------------
 // CHECK ADMIN LOGIN
 // ----------------------------------------------------
 
 const token = localStorage.getItem('token');
 const userData = localStorage.getItem('user');
+
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '/';
+}
 
 if (!token || !userData) {
   window.location.href = '/';
@@ -48,10 +59,42 @@ if (!token || !userData) {
       adminName.textContent = user.name;
     }
   } catch (error) {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/';
+    logout();
   }
+}
+
+// ----------------------------------------------------
+// API HELPER (adds the JWT, unwraps errors)
+// ----------------------------------------------------
+
+async function api(url, options = {}) {
+  const headers = { Authorization: `Bearer ${token}`, ...(options.headers || {}) };
+  if (options.body) headers['Content-Type'] = 'application/json';
+
+  const res = await fetch(url, { ...options, headers });
+
+  let data = null;
+  try {
+    data = await res.json();
+  } catch (err) {
+    data = null;
+  }
+
+  if (res.status === 401) {
+    logout();
+    throw new Error('Your session has expired. Please log in again.');
+  }
+
+  if (!res.ok) {
+    const detail = data && Array.isArray(data.errors) && data.errors.length
+      ? data.errors.join(' • ')
+      : data && data.message;
+    const error = new Error(detail || 'Request failed.');
+    error.status = res.status;
+    throw error;
+  }
+
+  return data;
 }
 
 // ----------------------------------------------------
@@ -74,6 +117,16 @@ const STATUS_GRADIENTS = {
 };
 
 // ----------------------------------------------------
+// STATE
+// ----------------------------------------------------
+
+let currentRooms = [];
+let currentPage = 1;
+let viewMode = 'active'; // 'active' | 'archived'
+let debounceTimer = null;
+let latestRequestId = 0;
+
+// ----------------------------------------------------
 // BUILD FILTER QUERY
 // ----------------------------------------------------
 
@@ -87,6 +140,9 @@ function buildQuery() {
   if (maxPrice.value) params.set('maxPrice', maxPrice.value);
   if (sortBy.value) params.set('sort', sortBy.value);
 
+  params.set('page', String(currentPage));
+  params.set('limit', String(PAGE_SIZE));
+
   return params.toString();
 }
 
@@ -94,58 +150,115 @@ function buildQuery() {
 // LOAD ROOMS
 // ----------------------------------------------------
 
-let debounceTimer = null;
-let currentRooms = [];
-
 async function loadRooms() {
+  // Only the most recent request may update the screen, so a slow earlier
+  // response can't overwrite the results of a newer search/filter.
+  const requestId = ++latestRequestId;
   roomsMessage.textContent = 'Loading rooms...';
 
   try {
-    const query = buildQuery();
-    const res = await fetch(`/api/rooms${query ? '?' + query : ''}`);
-    const data = await res.json();
+    const data = viewMode === 'archived'
+      ? await api('/api/rooms/archived')
+      : await api(`/api/rooms?${buildQuery()}`);
 
-    if (!res.ok) {
-      throw new Error(data.message || 'Unable to load rooms.');
+    if (requestId !== latestRequestId) return;
+
+    const rooms = Array.isArray(data) ? data : data.rooms || [];
+    const pagination = Array.isArray(data) ? null : data.pagination || null;
+
+    // Archived/deleted the last room on the final page: step back one page.
+    if (pagination && rooms.length === 0 && pagination.total > 0 && currentPage > pagination.totalPages) {
+      currentPage = pagination.totalPages;
+      return loadRooms();
     }
 
-    currentRooms = Array.isArray(data) ? data : data.value || data.rooms || [];
-    renderRooms(currentRooms);
+    currentRooms = rooms;
+    renderRooms(rooms, pagination);
   } catch (error) {
+    if (requestId !== latestRequestId) return;
     console.error('Room loading error:', error);
     roomsMessage.textContent = error.message;
     roomsGrid.innerHTML = '';
+    roomsPager.hidden = true;
   }
+}
+
+// Filters changed: go back to page 1, then reload.
+function reloadFromFirstPage() {
+  currentPage = 1;
+  loadRooms();
 }
 
 function debouncedLoad() {
   clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(loadRooms, 250);
+  debounceTimer = setTimeout(reloadFromFirstPage, 250);
 }
 
 // ----------------------------------------------------
-// RENDER ROOM CARDS
+// RENDER ROOM CARDS + PAGER
 // ----------------------------------------------------
 
-function renderRooms(rooms) {
+function renderRooms(rooms, pagination) {
+  const archived = viewMode === 'archived';
+
   if (!Array.isArray(rooms) || rooms.length === 0) {
-    roomsMessage.textContent = 'No rooms match your filters.';
+    roomsMessage.textContent = archived ? 'No archived rooms.' : 'No rooms match your filters.';
     roomsGrid.innerHTML = '';
+    renderPager(null);
     return;
   }
 
-  roomsMessage.textContent = `${rooms.length} room${rooms.length === 1 ? '' : 's'} found.`;
-  roomsGrid.innerHTML = rooms.map(roomCard).join('');
+  if (archived) {
+    roomsMessage.textContent = `${rooms.length} archived room${rooms.length === 1 ? '' : 's'}. Restore a room to make it visible again.`;
+  } else if (pagination) {
+    const start = (pagination.page - 1) * pagination.limit + 1;
+    const end = start + rooms.length - 1;
+    roomsMessage.textContent = `Showing ${start}–${end} of ${pagination.total} room${pagination.total === 1 ? '' : 's'}.`;
+  } else {
+    roomsMessage.textContent = `${rooms.length} room${rooms.length === 1 ? '' : 's'} found.`;
+  }
+
+  roomsGrid.innerHTML = rooms.map((room) => roomCard(room, archived)).join('');
+  renderPager(archived ? null : pagination);
 }
 
-function roomCard(room) {
+function renderPager(pagination) {
+  if (!pagination || pagination.totalPages <= 1) {
+    roomsPager.hidden = true;
+    roomsPager.innerHTML = '';
+    return;
+  }
+
+  const { page, totalPages } = pagination;
+
+  // Show first, last and a window of pages around the current one.
+  const pages = [];
+  for (let p = 1; p <= totalPages; p++) {
+    if (p === 1 || p === totalPages || Math.abs(p - page) <= 1) pages.push(p);
+  }
+
+  let html = `<button type="button" class="pager-btn" data-page="${page - 1}" ${page === 1 ? 'disabled' : ''}>‹ Prev</button>`;
+
+  let previous = 0;
+  for (const p of pages) {
+    if (p - previous > 1) html += '<span class="toolbar-label">…</span>';
+    html += `<button type="button" class="pager-btn ${p === page ? 'is-current' : ''}" data-page="${p}" ${p === page ? 'aria-current="page"' : ''}>${p}</button>`;
+    previous = p;
+  }
+
+  html += `<button type="button" class="pager-btn" data-page="${page + 1}" ${page === totalPages ? 'disabled' : ''}>Next ›</button>`;
+
+  roomsPager.innerHTML = html;
+  roomsPager.hidden = false;
+}
+
+function roomCard(room, archived) {
   const status = room.status || 'available';
   const gradient = STATUS_GRADIENTS[status] || STATUS_GRADIENTS.available;
   const firstImage = Array.isArray(room.images) && room.images.length ? room.images[0] : null;
 
   // If the image URL fails to load, hide it and reveal the placeholder
-  // that sits right behind it — avoids juggling escaped HTML inside an
-  // inline onerror string.
+  // that sits right behind it.
   const media = firstImage
     ? `<img src="${escapeHtml(firstImage)}" alt="${escapeHtml(room.roomNumber)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
        <div class="room-media-placeholder" style="display:none;background:${gradient}">${ROOM_ICON_SVG}</div>`
@@ -156,11 +269,19 @@ function roomCard(room) {
     .map((a) => `<span>${escapeHtml(a)}</span>`)
     .join('');
 
+  const badgeClass = archived ? 'archived' : status;
+  const badgeText = archived ? 'archived' : status;
+
+  const actions = archived
+    ? `<button type="button" class="btn-restore-room" data-action="restore" data-id="${escapeHtml(room._id)}">Restore</button>`
+    : `<button type="button" class="btn-edit-room" data-action="edit" data-id="${escapeHtml(room._id)}">Edit</button>
+       <button type="button" class="btn-delete-room" data-action="archive" data-id="${escapeHtml(room._id)}">Archive</button>`;
+
   return `
     <article class="admin-room-card">
       <div class="room-media">
         ${media}
-        <span class="room-media-badge room-status-${escapeHtml(status)}">${escapeHtml(status)}</span>
+        <span class="room-media-badge room-status-${escapeHtml(badgeClass)}">${escapeHtml(badgeText)}</span>
       </div>
 
       <div class="room-card-body">
@@ -181,10 +302,7 @@ function roomCard(room) {
         </div>
       </div>
 
-      <div class="room-card-actions">
-        <button type="button" class="btn-edit-room" onclick="openEditRoom('${room._id}')">Edit</button>
-        <button type="button" class="btn-delete-room" onclick="deleteRoom('${room._id}', '${escapeHtml(room.roomNumber)}')">Delete</button>
-      </div>
+      <div class="room-card-actions">${actions}</div>
     </article>
   `;
 }
@@ -227,6 +345,11 @@ function closeRoomModalFn() {
   roomModal.style.display = 'none';
 }
 
+function showFormError(message) {
+  roomFormError.textContent = message;
+  roomFormError.style.display = 'block';
+}
+
 // ----------------------------------------------------
 // SAVE ROOM (CREATE OR UPDATE)
 // ----------------------------------------------------
@@ -236,6 +359,15 @@ function splitList(value) {
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function isHttpUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch (err) {
+    return false;
+  }
 }
 
 roomForm.addEventListener('submit', async (event) => {
@@ -258,29 +390,29 @@ roomForm.addEventListener('submit', async (event) => {
     description: document.getElementById('description').value.trim()
   };
 
+  // Quick client-side checks (the server validates again).
+  if (payload.occupied > payload.capacity) {
+    return showFormError('Currently occupied cannot be more than capacity.');
+  }
+  if (payload.images.some((url) => !isHttpUrl(url))) {
+    return showFormError('Each image must be a full http(s) URL, separated by commas.');
+  }
+
   const saveButton = document.getElementById('saveRoomButton');
   saveButton.disabled = true;
   saveButton.textContent = 'Saving...';
 
   try {
-    const res = await fetch(roomId ? `/api/rooms/${roomId}` : '/api/rooms', {
+    await api(roomId ? `/api/rooms/${roomId}` : '/api/rooms', {
       method: roomId ? 'PUT' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || (data.errors && data.errors.join(', ')) || 'Unable to save room.');
-    }
 
     closeRoomModalFn();
     await loadRooms();
   } catch (error) {
     console.error('Room save error:', error);
-    roomFormError.textContent = error.message;
-    roomFormError.style.display = 'block';
+    showFormError(error.status === 409 ? 'A room with that room number already exists (it may be archived).' : error.message);
   } finally {
     saveButton.disabled = false;
     saveButton.textContent = 'Save Room';
@@ -288,36 +420,64 @@ roomForm.addEventListener('submit', async (event) => {
 });
 
 // ----------------------------------------------------
-// DELETE ROOM
+// ARCHIVE / RESTORE
 // ----------------------------------------------------
 
-async function deleteRoom(roomId, roomNumber) {
-  const confirmed = window.confirm(`Delete room ${roomNumber}? This cannot be undone.`);
+async function archiveRoom(roomId) {
+  const room = currentRooms.find((r) => r._id === roomId);
+  const label = room ? room.roomNumber : 'this room';
+
+  const confirmed = window.confirm(
+    `Archive room ${label}? It will be hidden from students but can be restored later.`
+  );
   if (!confirmed) return;
 
   try {
-    const res = await fetch(`/api/rooms/${roomId}`, { method: 'DELETE' });
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || 'Unable to delete room.');
-    }
-
+    await api(`/api/rooms/${roomId}`, { method: 'DELETE' });
     await loadRooms();
   } catch (error) {
-    console.error('Room delete error:', error);
+    console.error('Room archive error:', error);
+    alert(error.message);
+  }
+}
+
+async function restoreRoom(roomId) {
+  try {
+    await api(`/api/rooms/${roomId}/restore`, { method: 'PATCH' });
+    await loadRooms();
+  } catch (error) {
+    console.error('Room restore error:', error);
     alert(error.message);
   }
 }
 
 // ----------------------------------------------------
-// ESCAPE HTML
+// ARCHIVE VIEW TOGGLE
+// ----------------------------------------------------
+
+function setViewMode(mode) {
+  viewMode = mode;
+  currentPage = 1;
+
+  const archived = mode === 'archived';
+  roomsToolbar.classList.toggle('is-archived-view', archived);
+  archivedToggle.textContent = archived ? '← Back to active rooms' : 'View archived';
+  archivedToggle.setAttribute('aria-pressed', String(archived));
+
+  loadRooms();
+}
+
+// ----------------------------------------------------
+// ESCAPE HTML (safe for text and quoted attributes)
 // ----------------------------------------------------
 
 function escapeHtml(value) {
-  const div = document.createElement('div');
-  div.textContent = String(value ?? '');
-  return div.innerHTML;
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 // ----------------------------------------------------
@@ -325,9 +485,9 @@ function escapeHtml(value) {
 // ----------------------------------------------------
 
 roomSearch.addEventListener('input', debouncedLoad);
-typeFilter.addEventListener('change', loadRooms);
-statusFilter.addEventListener('change', loadRooms);
-sortBy.addEventListener('change', loadRooms);
+typeFilter.addEventListener('change', reloadFromFirstPage);
+statusFilter.addEventListener('change', reloadFromFirstPage);
+sortBy.addEventListener('change', reloadFromFirstPage);
 minPrice.addEventListener('input', debouncedLoad);
 maxPrice.addEventListener('input', debouncedLoad);
 
@@ -338,9 +498,30 @@ clearFiltersButton.addEventListener('click', () => {
   minPrice.value = '';
   maxPrice.value = '';
   sortBy.value = '';
-  loadRooms();
+  reloadFromFirstPage();
 });
 
+// Card buttons (event delegation, so no inline onclick handlers are needed)
+roomsGrid.addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-action]');
+  if (!button) return;
+
+  const { action, id } = button.dataset;
+  if (action === 'edit') openEditRoom(id);
+  if (action === 'archive') archiveRoom(id);
+  if (action === 'restore') restoreRoom(id);
+});
+
+roomsPager.addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-page]');
+  if (!button || button.disabled) return;
+
+  currentPage = Number(button.dataset.page);
+  loadRooms();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+archivedToggle.addEventListener('click', () => setViewMode(viewMode === 'archived' ? 'active' : 'archived'));
 refreshButton.addEventListener('click', loadRooms);
 addRoomButton.addEventListener('click', openAddRoom);
 closeRoomModal.addEventListener('click', closeRoomModalFn);
@@ -350,11 +531,11 @@ roomModal.addEventListener('click', (event) => {
   if (event.target === roomModal) closeRoomModalFn();
 });
 
-logoutButton.addEventListener('click', () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  window.location.href = '/';
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && roomModal.style.display !== 'none') closeRoomModalFn();
 });
+
+logoutButton.addEventListener('click', logout);
 
 // ----------------------------------------------------
 // INITIAL LOAD
