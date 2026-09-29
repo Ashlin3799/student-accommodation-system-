@@ -333,51 +333,6 @@ exports.deleteRoom = async (req, res, next) => {
   }
 };
 
-// DELETE /api/rooms/:id/permanent  (admin only)
-// Hard delete. Only allowed for rooms that are ALREADY archived, have no
-// occupants and have no Pending/Approved applications. Cannot be undone.
-exports.permanentDeleteRoom = async (req, res, next) => {
-  try {
-    const room = await Room.findById(req.params.id);
-
-    if (!room) {
-      return res.status(404).json({ success: false, message: 'Room not found' });
-    }
-
-    if (!room.isArchived) {
-      return res.status(409).json({
-        success: false,
-        message: 'Archive the room first. Only archived rooms can be permanently deleted.'
-      });
-    }
-
-    if (room.occupied > 0) {
-      return res.status(409).json({
-        success: false,
-        message: `Room ${room.roomNumber} still has ${room.occupied} occupant(s). Move them out before deleting.`
-      });
-    }
-
-    const activeApplications = await Application.countDocuments({
-      roomId: { $in: [String(room._id), room.roomNumber] },
-      status: { $in: ['Pending', 'Approved'] }
-    });
-
-    if (activeApplications > 0) {
-      return res.status(409).json({
-        success: false,
-        message: `Room ${room.roomNumber} has ${activeApplications} active application(s). Resolve them before deleting.`
-      });
-    }
-
-    await Room.findByIdAndDelete(req.params.id);
-
-    res.json({ success: true, message: `Room ${room.roomNumber} permanently deleted` });
-  } catch (err) {
-    next(err);
-  }
-};
-
 // PATCH /api/rooms/:id/restore  (admin only)
 exports.restoreRoom = async (req, res, next) => {
   try {
