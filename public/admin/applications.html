@@ -199,6 +199,8 @@
 
               <th>Student Name</th>
 
+              <th>Student Email</th>
+
               <th>Room</th>
 
               <th>Status</th>
@@ -275,11 +277,11 @@
         listMessage.textContent = "Loading applications...";
 
         try {
-         const res = await fetch("/api/applications", {
-  headers: {
-    "Authorization": `Bearer ${token}`
-  }
-});
+          const res = await fetch("/api/applications", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
           const data = await res.json();
 
@@ -313,6 +315,9 @@
 
               const studentName = app.studentName || app.name || "N/A";
 
+              const studentEmail =
+                app.studentEmail || (app.user && app.user.email) || "N/A";
+
               const submittedDate = app.createdAt
                 ? new Date(app.createdAt).toLocaleDateString()
                 : "N/A";
@@ -328,6 +333,10 @@
 
                   <td>
                     ${escapeHtml(studentName)}
+                  </td>
+
+                  <td>
+                    ${escapeHtml(studentEmail)} 
                   </td>
 
 
@@ -415,10 +424,10 @@
           const res = await fetch(`/api/applications/${id}`, {
             method: "PATCH",
 
-         headers: {
-            "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
-              },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
 
             body: JSON.stringify({
               status,
@@ -440,37 +449,36 @@
           alert(error.message);
         }
       }
-    
-    // DELETE APPLICATION
-    
-    async function deleteApplication(id) {
-      try {
-        const confirmed = window.confirm(
-          "Are you sure you want to permanently delete this application?"
-        );
-        if (!confirmed) return;
 
-        const res = await fetch(`/api/applications/${id}`, {
-          method: "DELETE",
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
-          }
-        });
+      // DELETE APPLICATION
 
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(
-            data.message || data.error || "Failed to delete application."
+      async function deleteApplication(id) {
+        try {
+          const confirmed = window.confirm(
+            "Are you sure you want to permanently delete this application?",
           );
+          if (!confirmed) return;
+
+          const res = await fetch(`/api/applications/${id}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+            },
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(
+              data.message || data.error || "Failed to delete application.",
+            );
+          }
+
+          await loadApplications();
+        } catch (error) {
+          console.error("Application delete error:", error);
+          alert(error.message);
         }
-
-        await loadApplications();
-      } catch (error) {
-        console.error("Application delete error:", error);
-        alert(error.message);
       }
-    }
-
 
       // ==========================================
       // ESCAPE HTML
@@ -484,22 +492,17 @@
         return div.innerHTML;
       }
 
-  
       // REFRESH BUTTON
- 
 
       refreshButton.addEventListener("click", function () {
         loadApplications();
       });
 
-      
       // INITIAL LOAD
-     
 
       loadApplications();
 
       // AUTO REFRESH EVERY 5 SECONDS
-     
 
       setInterval(loadApplications, 5000);
     </script>
