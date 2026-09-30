@@ -218,15 +218,17 @@ complaintForm.addEventListener(
 
     try {
 
-      const response =
-        await fetch('/api/complaints', {
+    const token = localStorage.getItem('token');
 
-          method: 'POST',
+const response =
+  await fetch('/api/complaints', {
 
-          headers: {
-            'Content-Type':
-              'application/json'
-          },
+    method: 'POST',
+
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
 
           body: JSON.stringify({
             studentId,
@@ -402,10 +404,17 @@ async function loadStudentComplaints(
 
   try {
 
-    const response =
-      await fetch(
-        `/api/complaints/student/${encodeURIComponent(studentId)}`
-      );
+const token = localStorage.getItem('token');
+
+const response =
+  await fetch(
+    `/api/complaints/student/${encodeURIComponent(studentId)}`,
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }
+  );
 
 
     const result =
