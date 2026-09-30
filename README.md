@@ -459,6 +459,111 @@ Clive's Sprint 2 complaint work includes:
 
 These tasks extend the Sprint 1 complaint functionality into a complete student-to-admin complaint-management workflow.
 
+# Application Module - Purva
+
+This is my part of the group project: the student side of the Application Module. A student applies for a room, the admin approves or rejects it, and the student sees the result. I built the database model, the API routes and the student page, following the MVC pattern:
+
+| Part | File | Job |
+|---|---|---|
+| Model | `models/Application.js` | What an application looks like and which values are allowed |
+| Controller | `routes/applications.js` | Handles requests, checks the rules, talks to MongoDB |
+| View | `public/application.html` | The page where students apply and track their status |
+
+## Sprint 1 - Building the base
+
+| Task | Status |
+|---|---|
+| Define Application schema | Completed |
+| Application form UI | Completed |
+| POST application API | Completed |
+| Track status UI | Completed |
+| GET status API | Completed |
+
+**What I built in Sprint 1**
+- **Application model** with student ID, student name, room ID, room title, status and dates. Status can only be `Pending`, `Approved` or `Rejected`, and starts as `Pending`.
+- **4 API endpoints:** submit an application, check a student's status, list all applications for the admin, and approve or reject.
+- **Apply form and Check Status section** on `application.html`, connected to the API with `fetch()`.
+- **Duplicate check in the API:** a student who already has a Pending or Approved application gets a 409 message.
+- **Setup:** connected my routes in `server.js`, and added `.env.example` and `.gitignore` so the database link is not uploaded to GitHub.
+- Merged into `main` through **Pull Request #1**.
+
+## Sprint 2 - Improving and connecting
+
+| Task | Status |
+|---|---|
+| Status sync with admin | Completed |
+| Frontend-backend integration | Completed |
+| Status indicators | Completed |
+| Duplicate handling | Completed |
+| Module testing | Completed |
+
+**What I added in Sprint 2**
+- **Live status updates:** the page checks the status every 15 seconds. When the admin approves or rejects, the status changes and flashes without refreshing. Students can turn live updates on or off.
+- **Status colours:** yellow for Pending, green for Approved (with a green border), red for Rejected.
+- **Copy Application ID button:** one click copies the ID, so the student can use it as a reference when contacting the admin.
+- **Clearer messages:** clear error messages, and when a student tries to apply twice, a link to "View my existing application status".
+- **Database duplicate rule:** a partial unique index on `studentId` (see below).
+- **Student Portal sidebar** (`public/js/studentNav.js`): the same menu on every student page (Dashboard, Rooms, Apply, Track Application, Complaints).
+- **Docker:** added `Dockerfile`, `.dockerignore` and `docker-compose.yml` so the project runs the same way on any computer.
+
+## How duplicate applications are stopped
+
+A student can only have **one active application** (Pending or Approved). This is checked in two places:
+
+1. **In the API (Sprint 1):** before saving, the POST route looks for an existing Pending or Approved application and returns **409** "You already have an active application."
+2. **In the database (Sprint 2):** a **partial unique index** on `studentId`. If a student double-clicks Submit, two requests can pass the API check at the same time. The index stops the second one from being saved.
+
+The index is **partial** on purpose. It only counts Pending and Approved applications, so a **rejected student can still apply again**.
+
+## API Endpoints
+
+| Method | Endpoint | Used by | Purpose | Responses |
+|---|---|---|---|---|
+| `POST` | `/api/applications` | Student | Submit an application | 201 saved, 400 missing fields, 409 already has an active application |
+| `GET` | `/api/applications/:studentId` | Student | Get the student's latest application | 200 found, 404 no application |
+| `GET` | `/api/applications` | Admin | List all applications | 200 |
+| `PATCH` | `/api/applications/:id` | Admin | Approve or reject an application | 200 updated, 400 invalid status, 404 not found |
+
+## How it connects to other modules
+
+- **Rooms:** the Apply button on a room fills in the room details on my form.
+- **Admin dashboard:** uses my `GET /api/applications` to list applications and my `PATCH` route to approve or reject.
+- **Student dashboard and Complaints:** linked through the shared Student Portal sidebar.
+
+## Testing
+
+I tested the module by running the app as a student and as an admin, and by using the browser DevTools (Network and Console tabs).
+
+| Test | Expected result | Result |
+|---|---|---|
+| Submit a new application | 201, saved as Pending | Passed |
+| Apply again with the same student | 409 "You already have an active application." | Passed |
+| Submit with empty fields | 400 "All fields are required." | Passed |
+| Admin sends an invalid status ("Maybe") | 400 "Invalid status value.", status unchanged | Passed |
+| Check a student with no application | 404 | Passed |
+| Admin approves while the student page is open | Status changes to Approved within 15 seconds, no refresh | Passed |
+
+## Running with Docker
+
+1. Copy `.env.example` to `.env`.
+2. In `.env`, change `127.0.0.1` in `MONGO_URI` to `host.docker.internal`, so the container can reach MongoDB on your computer.
+3. Run:
+```bash
+docker compose up --build
+```
+4. Open `http://localhost:3000`.
+
+## Key Files
+
+```text
+models/Application.js       # schema, status rules, partial unique index
+routes/applications.js      # POST, GET by student, GET all, PATCH
+public/application.html     # apply form, status check, live updates, Copy ID
+public/js/studentNav.js     # Student Portal sidebar
+Dockerfile                  # builds the app image
+.dockerignore               # keeps node_modules and .env out of the image
+docker-compose.yml          # runs the app with one command
+```
 
 # Application Management Module — Sprint 2
 
@@ -494,6 +599,7 @@ public/
 ├── application.html        # Student application form and payload construct
 ├── js/adminDashboard.js    # Admin application review grid, details modal, and live stats
 └── admin/applications.html # Applications table with action controls and deletion trash bin
+```
 
 
 
