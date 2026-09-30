@@ -7,6 +7,61 @@ function logout() {
 
 let currentApplications = [];
 
+// Dynamic Fetch for Dashboard Counter Stats
+async function fetchDashboardStats() {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch("/api/dashboard/stats", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    let total = 0,
+      pending = 0,
+      approved = 0,
+      rejected = 0;
+
+    if (response.ok) {
+      const stats = await response.json();
+      const data = stats.data || stats;
+
+      total = data.totalApplications ?? data.total ?? 0;
+      pending =
+        data.pendingApplications ?? data.pendingCount ?? data.pending ?? 0;
+      approved =
+        data.approvedApplications ?? data.approvedCount ?? data.approved ?? 0;
+      rejected =
+        data.rejectedApplications ?? data.rejectedCount ?? data.rejected ?? 0;
+    }
+
+    // Fallback: Calculate directly from live application records if stat endpoint returns 0
+    if (total === 0 && currentApplications.length > 0) {
+      total = currentApplications.length;
+      pending = currentApplications.filter(
+        (a) => (a.status || "").toLowerCase() === "pending"
+      ).length;
+      approved = currentApplications.filter(
+        (a) => (a.status || "").toLowerCase() === "approved"
+      ).length;
+      rejected = currentApplications.filter(
+        (a) => (a.status || "").toLowerCase() === "rejected"
+      ).length;
+    }
+
+    // Update DOM counter elements
+    const totalEl = document.getElementById("totalApplications");
+    const pendingEl = document.getElementById("pendingApplications");
+    const approvedEl = document.getElementById("approvedApplications");
+    const rejectedEl = document.getElementById("rejectedApplications");
+
+    if (totalEl) totalEl.innerText = total;
+    if (pendingEl) pendingEl.innerText = pending;
+    if (approvedEl) approvedEl.innerText = approved;
+    if (rejectedEl) rejectedEl.innerText = rejected;
+  } catch (err) {
+    console.error("Error fetching dashboard stats:", err);
+  }
+}
+
 // Dynamic Fetch for Applications List
 async function fetchApplications() {
   try {
@@ -52,23 +107,21 @@ async function fetchApplications() {
               ${
                 isPending
                   ? `
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;"> 
-                  <button onclick="updateStatus('${app._id}', 'Approved')" style="background:#28a745; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">Approve</button> 
-                  <button onclick="updateStatus('${app._id}', 'Rejected')" style="background:#dc3545; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">Reject</button> 
-              </div> 
-              `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
+                    <button onclick="updateStatus('${app._id}', 'Approved')" style="background:#28a745; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">Approve</button>
+                    <button onclick="updateStatus('${app._id}', 'Rejected')" style="background:#dc3545; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">Reject</button>
+                </div>
+                `
                   : ""
               }
               <div style="display: flex; gap: 8px; margin-top: 10px;">
-  <button onclick="showDetails('${app._id}')" style="flex:1; background:#14403f; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">View Details</button>
- <button onclick="deleteApplication('${app._id}')" title="Delete Application" style="background:#475569; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:background 0.2s;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='#475569'">
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-  </svg>
-</button>
-
-</div>
-
+                <button onclick="showDetails('${app._id}')" style="flex:1; background:#14403f; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600;">View Details</button>
+                <button onclick="deleteApplication('${app._id}')" title="Delete Application" style="background:#475569; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:background 0.2s;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='#475569'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         `;
@@ -104,7 +157,7 @@ function showDetails(appId) {
     <p><strong>Date Submitted:</strong> ${app.createdAt ? new Date(app.createdAt).toLocaleDateString() : "N/A"}</p>
     <p><strong>Status:</strong> <span style="text-transform:capitalize;">${escapeHtml(rawStatus)}</span></p>
     
-   <div style="margin-top: 16px; border-top: 1px solid #eee; padding-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+    <div style="margin-top: 16px; border-top: 1px solid #eee; padding-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
   ${
     isPending
       ? `
@@ -113,15 +166,13 @@ function showDetails(appId) {
   `
       : ""
   }
-<button onclick="deleteApplication('${app._id}')" title="Delete Application" style="background:#475569; color:white; border:none; padding:8px 14px; border-radius:4px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-weight:600; transition:background 0.2s;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='#475569'">
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-  </svg>
-  Delete
-</button>
-
-</div>
-
+  <button onclick="deleteApplication('${app._id}')" title="Delete Application" style="background:#475569; color:white; border:none; padding:8px 14px; border-radius:4px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-weight:600; transition:background 0.2s;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='#475569'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    </svg>
+    Delete
+  </button>
+  </div>
   `;
 
   document.getElementById("detailsModal").style.display = "flex";
@@ -141,7 +192,6 @@ async function updateStatus(applicationId, newStatus) {
       body: JSON.stringify({ status: newStatus }),
     });
 
-    // Fallback to PUT if route is configured as PUT in express
     if (!response.ok && response.status === 404) {
       response = await fetch(`/api/applications/${applicationId}`, {
         method: "PUT",
@@ -152,9 +202,9 @@ async function updateStatus(applicationId, newStatus) {
 
     const result = await response.json();
     if (response.ok) {
-      alert(`Application ${newStatus} successfully!`);
       closeModal();
-      fetchApplications(); // Reload UI
+      await fetchApplications();
+      await fetchDashboardStats();
     } else {
       alert(result.error || result.message || "Failed to update status");
     }
@@ -163,7 +213,6 @@ async function updateStatus(applicationId, newStatus) {
     alert("Server error updating status.");
   }
 }
-
 
 async function deleteApplication(applicationId) {
   if (!confirm("Are you sure you want to delete this application?")) return;
@@ -178,8 +227,9 @@ async function deleteApplication(applicationId) {
 
     const result = await response.json();
     if (response.ok) {
-      alert("Application deleted successfully!");
-      fetchApplications(); // Refresh table/list
+      closeModal();
+      await fetchApplications();
+      await fetchDashboardStats();
     } else {
       alert(result.error || "Failed to delete application");
     }
@@ -195,10 +245,16 @@ function escapeHtml(value) {
   return div.innerHTML;
 }
 
-// Automatically load applications when page visits
-fetchApplications();
+// Automatically load applications and counter stats on page load
+async function initDashboard() {
+  await fetchApplications();
+  await fetchDashboardStats();
+}
+
+initDashboard();
 
 // Automatically poll the server every 3 seconds for new applications
-setInterval(() => {
-  fetchApplications();
+setInterval(async () => {
+  await fetchApplications();
+  await fetchDashboardStats();
 }, 3000);
