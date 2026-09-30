@@ -95,7 +95,11 @@ async function loadComplaints() {
     try {
 
         const response =
-            await fetch('/api/complaints');
+          await fetch('/api/complaints', {
+    headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+    }
+});
 
 
         const result =
@@ -491,34 +495,37 @@ async function updateComplaintStatus(
     }
 
 
-    try {
+try {
 
-        const response =
-            await fetch(
+    const response =
+        await fetch(
 
-                `/api/complaints/${complaintId}/status`,
+            `/api/complaints/${complaintId}/status`,
 
-                {
+            {
 
-                    method: 'PATCH',
+                method: 'PATCH',
 
-                    headers: {
+                headers: {
 
-                        'Content-Type':
-                            'application/json'
+                    'Content-Type':
+                        'application/json',
 
-                    },
+                    'Authorization':
+                        `Bearer ${localStorage.getItem('token')}`
 
-                    body: JSON.stringify({
+                },
 
-                        status:
-                            newStatus
+                body: JSON.stringify({
 
-                    })
+                    status:
+                        newStatus
 
-                }
+                })
 
-            );
+            }
+
+        );
 
 
         const result =

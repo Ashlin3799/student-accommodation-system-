@@ -144,8 +144,8 @@
             padding: 18px;
             margin-top: 15px;
         }
-        .status-box:has(.badge.Approved) {
 
+        .status-box:has(.badge.Approved) {
             border-color: #28a745;
             border-width: 2px;
         }
@@ -332,11 +332,26 @@
 
 <script>
 
+    // ==========================================
+    // LOGIN GUARD (FIX: redirect if not logged in)
+    // ==========================================
+    if (!localStorage.getItem("token")) {
+        window.location.href = "/";
+    }
+
     const STORAGE_KEY = "sas_last_student_id";
     const POLL_INTERVAL_MS = 15000;
 
     let pollTimer = null;
     let lastKnownStatus = null;
+
+    // ==========================================
+    // AUTH HEADER HELPER (FIX)
+    // ==========================================
+    function authHeaders() {
+        const token = localStorage.getItem("token");
+        return token ? { "Authorization": `Bearer ${token}` } : {};
+    }
 
     function formatDate(value) {
         if (!value) return "N/A";
@@ -400,9 +415,15 @@
         `;
     }
 
+    // ==========================================
+    // FETCH STATUS (FIX: now sends the token)
+    // ==========================================
     async function fetchStatus(studentId, { silent = false } = {}) {
         try {
-            const response = await fetch(`/api/applications/${encodeURIComponent(studentId)}`);
+            const response = await fetch(
+                `/api/applications/${encodeURIComponent(studentId)}`,
+                { headers: authHeaders() }
+            );
             const data = await response.json();
 
             if (response.ok) {
@@ -457,6 +478,7 @@
             document.getElementById("checkStudentId").value = remembered;
         }
     });
+
     // Auto-fill roomId and roomTitle from URL search params
     window.addEventListener("DOMContentLoaded", () => {
         const params = new URLSearchParams(window.location.search);
@@ -467,7 +489,7 @@
             document.getElementById("roomTitle").value = params.get("roomTitle");
         }
     });
-    
+
 
     // Submit application
     const applyForm = document.getElementById("applyForm");
@@ -484,7 +506,7 @@
 
         const studentId = document.getElementById("studentId").value.trim();
         const user = JSON.parse(localStorage.getItem("user") || "{}");
-          const studentEmail = user.email || "student@test.com";
+        const studentEmail = user.email || "student@test.com";
 
         const body = {
             studentId,
@@ -496,10 +518,13 @@
 
         try {
 
+            // FIX: send the `body` object built above (the old code used
+            // undefined variables studentName, roomId, roomTitle)
             const response = await fetch("/api/applications", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    ...authHeaders()
                 },
                 body: JSON.stringify(body)
             });
@@ -571,7 +596,7 @@
     });
 
 
-    // Checking the  application status
+    // Checking the application status
     const statusForm = document.getElementById("statusForm");
     const statusResult = document.getElementById("statusResult");
     const checkBtn = document.getElementById("checkBtn");
