@@ -470,14 +470,39 @@
         if (note) note.remove();
     }
 
-    // Prefill remembered student ID
-    window.addEventListener("DOMContentLoaded", () => {
-        const remembered = localStorage.getItem(STORAGE_KEY);
-        if (remembered) {
-            document.getElementById("studentId").value = remembered;
-            document.getElementById("checkStudentId").value = remembered;
+// Prefill student details from logged-in session and lock Student ID
+window.addEventListener("DOMContentLoaded", () => {
+    const userStr = localStorage.getItem("user");
+    let loggedInStudentId = "";
+
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            loggedInStudentId = user.studentId || user.id || user._id || "";
+            
+            if (user.name || user.studentName) {
+                document.getElementById("studentName").value = user.name || user.studentName;
+            }
+        } catch (e) {
+            console.error("Error parsing user from localStorage:", e);
         }
-    });
+    }
+
+    if (!loggedInStudentId) {
+        loggedInStudentId = localStorage.getItem(STORAGE_KEY) || "";
+    }
+
+    if (loggedInStudentId) {
+        const studentIdEl = document.getElementById("studentId");
+        const checkStudentIdEl = document.getElementById("checkStudentId");
+        
+        studentIdEl.value = loggedInStudentId;
+        studentIdEl.readOnly = true; // Locks field to match logged-in account
+        studentIdEl.style.backgroundColor = "#eef4f3";
+        
+        checkStudentIdEl.value = loggedInStudentId;
+    }
+});
 
     // Auto-fill roomId and roomTitle from URL search params
     window.addEventListener("DOMContentLoaded", () => {
@@ -506,7 +531,7 @@
 
         const studentId = document.getElementById("studentId").value.trim();
         const user = JSON.parse(localStorage.getItem("user") || "{}");
-        const studentEmail = user.email || "student@test.com";
+        const studentEmail = user.email || user.studentEmail || "student@test.com";
 
         const body = {
             studentId,
