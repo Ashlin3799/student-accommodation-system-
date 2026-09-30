@@ -65,7 +65,14 @@ async function fetchDashboardStats() {
 // Dynamic Fetch for Applications List
 async function fetchApplications() {
   try {
-    const response = await fetch("/api/applications");
+    const token = localStorage.getItem("token"); // <--- ADDED THIS LINE TO FIX THE BUG
+
+    const response = await fetch("/api/applications", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
     const result = await response.json();
     const container = document.getElementById("applications-list");
 
@@ -186,16 +193,23 @@ function closeModal() {
 // Handle Approve / Reject Actions (Supports PATCH and PUT routes)
 async function updateStatus(applicationId, newStatus) {
   try {
+    const token = localStorage.getItem("token");
     let response = await fetch(`/api/applications/${applicationId}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify({ status: newStatus }),
     });
 
     if (!response.ok && response.status === 404) {
       response = await fetch(`/api/applications/${applicationId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({ status: newStatus }),
       });
     }
